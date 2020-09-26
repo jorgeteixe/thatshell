@@ -44,15 +44,17 @@ int main() {
     char *inStr = malloc(100);
 
     while (1) {
+        /* Prints shell prompt */
         prompt();
 
-        /* Get user input and writes in inStr */
+        /* Get user input and writes on inStr */
         input(inStr);
+
+
+
 
         /* Variable value test output */
         printf("%s", inStr);
-
-
 
         /* Final operations */
         free(inStr);
