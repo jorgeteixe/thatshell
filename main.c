@@ -41,18 +41,18 @@ void input(char *inStr) {
 }
 
 /**
- * Function: TrocearCadena
+ * Function: TrocearCadena (got from exercise statement)
  * ------------------
  * The following function splits thestring pointed by
  * cadena (suposedly not null) into a NULL terminated array
  * of pointers (trozos).
  *
  * *cadena: ref to user input (value gets modified and useless)
- * *trozos[]: ref to null terminated array
+ * **trozos: ref to null terminated array
  *
  * returns: number of tokens
  */
-int TrocearCadena(char *cadena, char *trozos[]) {
+int TrocearCadena(char *cadena, char **trozos) {
     int i = 1;
     if ((trozos[0] = strtok(cadena, " \n\t")) == NULL)
         return 0;
@@ -61,11 +61,79 @@ int TrocearCadena(char *cadena, char *trozos[]) {
     return i;
 }
 
+
+/**
+ * Function: router
+ * ------------------
+ * Receiving the tokens of the user input, finds the function
+ * related to the command that the user wants to run and goes.
+ *
+ * **tokens: user input tokenized
+ *
+ * returns: void
+ */
+int router(char **tokens, int ntokens) {
+    /** Array of commands and the assigned number */
+    const int N_COMMANDS = 11;
+    char *myCommands[N_COMMANDS];
+
+    myCommands[0] = "exit";
+    myCommands[1] = "quit";
+    myCommands[2] = "end";
+    myCommands[3] = "authors";
+    myCommands[4] = "getpid";
+    myCommands[5] = "getppid";
+    myCommands[6] = "pwd";
+    myCommands[7] = "chdir";
+    myCommands[8] = "date";
+    myCommands[9] = "time";
+    myCommands[10] = "historic";
+
+    int cmdCounter;
+    for (cmdCounter = 0; cmdCounter < N_COMMANDS; ++cmdCounter) {
+        if (strcmp(tokens[0], myCommands[cmdCounter]) == 0) {
+            break;
+        }
+    }
+
+    /** Get only arguments */
+
+
+    /** Actual router to functions */
+    switch (cmdCounter) {
+        case 0:
+        case 1:
+        case 2:
+            return 0;
+        case 3:
+            break;
+        case 4:
+            break;
+        case 5:
+            break;
+        case 6:
+            break;
+        case 7:
+            break;
+        case 8:
+            break;
+        case 9:
+            break;
+        case 10:
+            break;
+        default:
+            printf("Unrecognised command... Try again.\n");
+            return 1;
+    }
+    return 2;
+}
+
 int main() {
     /** Reserves 100 bytes for user input */
     char *inStr = malloc(100);
+    int status = 1;
 
-    while (1) {
+    while (status) {
         /** Prints shell prompt */
         prompt();
 
@@ -73,20 +141,16 @@ int main() {
         input(inStr);
 
         /** !TODO save inStr in history before TrocearCadena is called */
+
         /** Tokenizes user input */
         char *tokens[50];
         int ntokens = TrocearCadena(inStr, tokens);
 
+        status = router(tokens, ntokens);
 
-
-
-        /** DEBUG Prints all tokens separated */
-        for (int i = 0; i < ntokens; ++i) {
-            printf("%s\n", tokens[i]);
-        }
-
-        /** Final operations */
-        free(inStr);
-        exit(1);
     }
+
+    /** Final operations */
+    free(inStr);
+    return 1;
 }
