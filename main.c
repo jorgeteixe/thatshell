@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 /** comment template **/
 
@@ -43,7 +44,7 @@ void input(char *inStr) {
 /**
  * Function: TrocearCadena (got from exercise statement)
  * ------------------
- * The following function splits thestring pointed by
+ * The following function splits the string pointed by
  * cadena (suposedly not null) into a NULL terminated array
  * of pointers (trozos).
  *
@@ -66,7 +67,8 @@ int TrocearCadena(char *cadena, char **trozos) {
  * Function: router
  * ------------------
  * Receiving the tokens of the user input, finds the function
- * related to the command that the user wants to run and goes.
+ * related to the command that the user wants to run, goes and passes
+ * the arguments.
  *
  * **tokens: user input tokenized
  *
@@ -108,8 +110,10 @@ int router(char **tokens, int ntokens) {
         case 3:
             break;
         case 4:
+            printf("%d", getpid());
             break;
         case 5:
+            printf("%d", getppid());
             break;
         case 6:
             break;
@@ -123,9 +127,9 @@ int router(char **tokens, int ntokens) {
             break;
         default:
             printf("Unrecognised command... Try again.\n");
-            return 1;
     }
-    return 2;
+    printf("\n");
+    return 1;
 }
 
 int main() {
