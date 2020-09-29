@@ -101,6 +101,37 @@ int getppid_cmd(int nargs) {
 
 
 /**
+ * Function: authors_cmd
+ * ------------------
+ * Gives the logic to the authors command.
+ *
+ * **args: array of arguments received from user
+ * nargs: number of arguments received
+ *
+ * returns: returns 0 when correct, -1 when error
+ */
+int authors_cmd(char **args, int nargs) {
+    char *authors[] = {"Jorge Teixeira Crespo", "jorge.teixeira@udc.es"};
+    switch (nargs) {
+        case 0:
+            printf("Author: \n%s (%s)\n", authors[0], authors[1]);
+            return 0;
+        case 1:
+            if (strcmp(args[0], "-n") == 0) {
+                printf("Author name: %s\n", authors[0]);
+                return 0;
+            }
+            if (strcmp(args[0], "-l") == 0) {
+                printf("Author login: %s\n", authors[1]);
+                return 0;
+            }
+    }
+    printf("%s\n", "Arguments are wrong, check it out.");
+    return -1;
+}
+
+
+/**
  * Function: router
  * ------------------
  * Receiving the tokens of the user input, finds the function
@@ -142,6 +173,7 @@ int router(char **tokens, int ntokens) {
         case 2:
             return 0;
         case 3:
+            authors_cmd(tokens + 1, ntokens - 1);
             break;
         case 4:
             getpid_cmd(ntokens - 1);
