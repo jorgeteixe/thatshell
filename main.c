@@ -62,6 +62,43 @@ int TrocearCadena(char *cadena, char **trozos) {
     return i;
 }
 
+/**
+ * Function: getpid_cmd
+ * ------------------
+ * Calls system getpid and prints the result
+ *
+ * nargs: number of arguments received
+ *
+ * returns: returns 0 when correct, -1 when error
+ */
+int getpid_cmd(int nargs) {
+    if (nargs != 0) {
+        printf("%s\n", "getpid does not accept any argument.");
+        return -1;
+    }
+    printf("%d\n", getpid());
+    return 0;
+}
+
+
+/**
+ * Function: getppid_cmd
+ * ------------------
+ * Calls system getppid and prints the result
+ *
+ * nargs: number of arguments received
+ *
+ * returns: returns 0 when correct, -1 when error
+ */
+int getppid_cmd(int nargs) {
+    if (nargs != 0) {
+        printf("%s\n", "getppid does not accept any argument.");
+        return -1;
+    }
+    printf("%d\n", getppid());
+    return 0;
+}
+
 
 /**
  * Function: router
@@ -98,9 +135,6 @@ int router(char **tokens, int ntokens) {
         }
     }
 
-    /** Get only arguments */
-
-
     /** Actual router to functions */
     switch (cmdCounter) {
         case 0:
@@ -110,10 +144,10 @@ int router(char **tokens, int ntokens) {
         case 3:
             break;
         case 4:
-            printf("%d", getpid());
+            getpid_cmd(ntokens - 1);
             break;
         case 5:
-            printf("%d", getppid());
+            getppid_cmd(ntokens - 1);
             break;
         case 6:
             break;
