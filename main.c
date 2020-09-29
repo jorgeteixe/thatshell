@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <errno.h>
+#include <time.h>
 
 /** comment template **/
 
@@ -119,6 +120,60 @@ int pwd_cmd(int nargs) {
     char cwd[PATH_MAX];
     getcwd(cwd, sizeof(cwd));
     printf("%s\n", cwd);
+    return 0;
+}
+
+
+/**
+ * Function: date_cmd
+ * ------------------
+ * Prints the current date in DD/MM/YYYY format
+ *
+ * nargs: number of arguments received
+ *
+ * returns: returns 0 when correct, -1 when error
+ */
+int date_cmd(int nargs) {
+    if (nargs != 0) {
+        printf("%s\n", "date does not accept any argument.");
+        return -1;
+    }
+    time_t t;
+    char buffer[12];
+    struct tm* tc;
+
+    t = time(NULL);
+    tc = localtime(&t);
+
+    strftime(buffer, 12, "%d/%m/%Y", tc);
+    printf("%s\n", buffer);
+    return 0;
+}
+
+
+/**
+ * Function: time_cmd
+ * ------------------
+ * Prints the current t in hh:mm:ss format
+ *
+ * nargs: number of arguments received
+ *
+ * returns: returns 0 when correct, -1 when error
+ */
+int time_cmd(int nargs) {
+    if (nargs != 0) {
+        printf("%s\n", "time does not accept any argument.");
+        return -1;
+    }
+    time_t t;
+    char buffer[10];
+    struct tm* tc;
+
+    t = time(NULL);
+    tc = localtime(&t);
+
+    strftime(buffer, 10, "%T", tc);
+    printf("%s\n", buffer);
     return 0;
 }
 
@@ -241,8 +296,10 @@ int router(char **tokens, int ntokens) {
             chdir_cmd(tokens + 1, ntokens - 1);
             break;
         case 8:
+            date_cmd(ntokens - 1);
             break;
         case 9:
+            time_cmd(ntokens - 1);
             break;
         case 10:
             break;
