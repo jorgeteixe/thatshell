@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
+#include <errno.h>
 
 /** comment template **/
 
@@ -121,6 +122,34 @@ int pwd_cmd(int nargs) {
     return 0;
 }
 
+/**
+ * Function: chdir_cmd
+ * ------------------
+ * Changes the current working directory.
+ *
+ * **args: array of arguments received from user
+ * nargs: number of arguments received
+ *
+ * returns: returns 0 when correct, -1 when error
+ */
+int chdir_cmd(char **args, int nargs) {
+    switch (nargs) {
+        case 0:
+            pwd_cmd(nargs);
+            return 0;
+        case 1:
+            if (chdir(args[0]) == -1) {
+                printf("Could not change to %s: %s\n", args[0], strerror(errno));
+                return -1;
+            }
+            return 0;
+        default:
+            break;
+    }
+    printf("%s\n", "Arguments are wrong, check it out.");
+    return -1;
+}
+
 
 /**
  * Function: authors_cmd
@@ -209,6 +238,7 @@ int router(char **tokens, int ntokens) {
             pwd_cmd(ntokens - 1);
             break;
         case 7:
+            chdir_cmd(tokens + 1, ntokens - 1);
             break;
         case 8:
             break;
