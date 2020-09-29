@@ -6,19 +6,6 @@
 #include <errno.h>
 #include <time.h>
 
-/** comment template **/
-
-/**
- * Function: func_name
- * ------------------
- * func def
- *
- * param: param def
- *
- * returns: return def
- */
-
-
 /**
  * Function: prompt
  * ------------------
