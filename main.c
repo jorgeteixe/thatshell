@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <limits.h>
 
 /** comment template **/
 
@@ -101,6 +102,27 @@ int getppid_cmd(int nargs) {
 
 
 /**
+ * Function: pwd_cmd
+ * ------------------
+ * Prints the current working directory
+ *
+ * nargs: number of arguments received
+ *
+ * returns: returns 0 when correct, -1 when error
+ */
+int pwd_cmd(int nargs) {
+    if (nargs != 0) {
+        printf("%s\n", "pwd does not accept any argument.");
+        return -1;
+    }
+    char cwd[PATH_MAX];
+    getcwd(cwd, sizeof(cwd));
+    printf("%s\n", cwd);
+    return 0;
+}
+
+
+/**
  * Function: authors_cmd
  * ------------------
  * Gives the logic to the authors command.
@@ -125,6 +147,8 @@ int authors_cmd(char **args, int nargs) {
                 printf("Author login: %s\n", authors[1]);
                 return 0;
             }
+        default:
+            break;
     }
     printf("%s\n", "Arguments are wrong, check it out.");
     return -1;
@@ -182,6 +206,7 @@ int router(char **tokens, int ntokens) {
             getppid_cmd(ntokens - 1);
             break;
         case 6:
+            pwd_cmd(ntokens - 1);
             break;
         case 7:
             break;
