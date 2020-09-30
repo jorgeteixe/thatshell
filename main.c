@@ -234,6 +234,7 @@ int authors_cmd(char **args, int nargs) {
  * the arguments.
  *
  * **tokens: user input tokenized
+ * ntokens: number of elements in tokens
  *
  * returns: void
  */
