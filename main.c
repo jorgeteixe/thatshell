@@ -238,22 +238,8 @@ int authors_cmd(char **args, int nargs) {
  *
  * returns: void
  */
-int router(char **tokens, int ntokens) {
-    /** Array of commands and the assigned number */
-    const int N_COMMANDS = 11;
-    char *myCommands[N_COMMANDS];
+int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens) {
 
-    myCommands[0] = "exit";
-    myCommands[1] = "quit";
-    myCommands[2] = "end";
-    myCommands[3] = "authors";
-    myCommands[4] = "getpid";
-    myCommands[5] = "getppid";
-    myCommands[6] = "pwd";
-    myCommands[7] = "chdir";
-    myCommands[8] = "date";
-    myCommands[9] = "time";
-    myCommands[10] = "historic";
 
     int cmdCounter;
     for (cmdCounter = 0; cmdCounter < N_COMMANDS; ++cmdCounter) {
@@ -298,10 +284,37 @@ int router(char **tokens, int ntokens) {
     return 1;
 }
 
+char** loadCmds(int N_COMMANDS) {
+    /** Array of commands and the assigned number */
+
+    char **myCommands = malloc(sizeof(char*)*N_COMMANDS);
+
+    /** Suspecting that are only saved in heap the directions
+     * and not the data below.
+     * TODO Ask how to do this.
+     */
+    myCommands[0] = "exit";
+    myCommands[1] = "quit";
+    myCommands[2] = "end";
+    myCommands[3] = "authors";
+    myCommands[4] = "getpid";
+    myCommands[5] = "getppid";
+    myCommands[6] = "pwd";
+    myCommands[7] = "chdir";
+    myCommands[8] = "date";
+    myCommands[9] = "time";
+    myCommands[10] = "historic";
+
+    return myCommands;
+}
+
 int main() {
     /** Reserves 100 bytes for user input */
     char *inStr = malloc(100);
     int status = 1;
+
+    int n_cms = 11;
+    char **cms = loadCmds(n_cms);
 
     while (status) {
         /** Prints shell prompt */
@@ -316,11 +329,12 @@ int main() {
         char *tokens[50];
         int ntokens = TrocearCadena(inStr, tokens);
 
-        status = router(tokens, ntokens);
+        status = router(cms, n_cms, tokens, ntokens);
 
     }
 
     /** Final operations */
+    free(cms);
     free(inStr);
     return 1;
 }
