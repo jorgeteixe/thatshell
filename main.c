@@ -289,10 +289,6 @@ char** loadCmds(int N_COMMANDS) {
 
     char **myCommands = malloc(sizeof(char*)*N_COMMANDS);
 
-    /** Suspecting that are only saved in heap the directions
-     * and not the data below.
-     * TODO Ask how to do this.
-     */
     myCommands[0] = "exit";
     myCommands[1] = "quit";
     myCommands[2] = "end";
