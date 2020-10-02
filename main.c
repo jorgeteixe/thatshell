@@ -226,6 +226,10 @@ int authors_cmd(char **args, int nargs) {
     return -1;
 }
 
+void historic_cmd(char **args, int nargs) {
+
+}
+
 
 /**
  * Function: router
@@ -277,6 +281,7 @@ int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens) {
             time_cmd(ntokens - 1);
             break;
         case 10:
+            historic_cmd(tokens + 1, ntokens - 1);
             break;
         default:
             printf("Unrecognised command... Try again.\n");
@@ -313,6 +318,8 @@ int main() {
     int n_cms = 11;
     char **cms = loadCmds(n_cms);
 
+    historic h = create_historic();
+
     while (status) {
         /** Prints shell prompt */
         prompt();
@@ -320,7 +327,8 @@ int main() {
         /** Gets user input and writes on inStr */
         input(inStr);
 
-        /** !TODO save inStr in history before TrocearCadena is called */
+        /** Save the command in historic */
+        insert_in_historic(h, inStr);
 
         /** Tokenizes user input */
         char *tokens[50];
@@ -331,6 +339,7 @@ int main() {
     }
 
     /** Final operations */
+    remove_historic(h);
     free(cms);
     free(inStr);
     return 1;
