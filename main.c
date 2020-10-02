@@ -5,6 +5,7 @@
 #include <limits.h>
 #include <errno.h>
 #include <time.h>
+#include "arrayimpl.h"
 
 /**
  * Function: prompt
