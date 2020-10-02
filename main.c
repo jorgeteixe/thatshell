@@ -7,6 +7,20 @@
 #include <time.h>
 #include "arrayimpl.h"
 
+/** COMMAND CONSTANTS */
+
+#define EXIT 0
+#define QUIT 1
+#define END 2
+#define AUTHORS 3
+#define GETPID 4
+#define GETPPID 5
+#define PWD 6
+#define CHDIR 7
+#define DATE 8
+#define TIME 9
+#define HISTORIC 10
+
 /**
  * Function: prompt
  * ------------------
@@ -226,8 +240,44 @@ int authors_cmd(char **args, int nargs) {
     return -1;
 }
 
-void historic_cmd(char **args, int nargs) {
 
+/**
+ * Function: historic_cmd
+ * ------------------
+ * Works with the command history.
+ *
+ * **args: array of arguments received from user
+ * nargs: number of arguments received
+ *
+ * returns: returns 0 when correct, -1 when error
+ */
+int historic_cmd(char **args, int nargs, historic h) {
+
+    int n_elem = n_elements_in_historic(h);
+
+    if (n_elem == 0) {
+        printf("%s", "There is no history yet, cannot do anything.\n");
+    }
+
+    switch (nargs) {
+        case 0:
+            for (int i = 0; i < n_elem; ++i) {
+                printf("%d) %s\n", i, read_from_historic(h, i));
+            }
+            break;
+        case 1:
+            if (strcmp(args[0], "-c") == 0) {
+                for (int i = 0; i < n_elem; ++i) {
+                    remove_from_historic(h, 0);
+                }
+                printf("%s", "Cleared history.");
+            }
+            break;
+        default:
+            break;
+    }
+
+    return 0;
 }
 
 
@@ -238,13 +288,15 @@ void historic_cmd(char **args, int nargs) {
  * related to the command that the user wants to run, goes and passes
  * the arguments.
  *
+ * **myCommands: array with avaliable commands
+ * N_COMMANDS: number of elements in myCommands
  * **tokens: user input tokenized
  * ntokens: number of elements in tokens
+ * historic: address to history
  *
- * returns: void
+ * returns: int 1 when continue, 0 when exit
  */
-int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens) {
-
+int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens, historic h) {
 
     int cmdCounter;
     for (cmdCounter = 0; cmdCounter < N_COMMANDS; ++cmdCounter) {
@@ -255,33 +307,33 @@ int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens) {
 
     /** Actual router to functions */
     switch (cmdCounter) {
-        case 0:
-        case 1:
-        case 2:
+        case EXIT:
+        case QUIT:
+        case END:
             return 0;
-        case 3:
+        case AUTHORS:
             authors_cmd(tokens + 1, ntokens - 1);
             break;
-        case 4:
+        case GETPID:
             getpid_cmd(ntokens - 1);
             break;
-        case 5:
+        case GETPPID:
             getppid_cmd(ntokens - 1);
             break;
-        case 6:
+        case PWD:
             pwd_cmd(ntokens - 1);
             break;
-        case 7:
+        case CHDIR:
             chdir_cmd(tokens + 1, ntokens - 1);
             break;
-        case 8:
+        case DATE:
             date_cmd(ntokens - 1);
             break;
-        case 9:
+        case TIME:
             time_cmd(ntokens - 1);
             break;
-        case 10:
-            historic_cmd(tokens + 1, ntokens - 1);
+        case HISTORIC:
+            historic_cmd(tokens + 1, ntokens - 1, h);
             break;
         default:
             printf("Unrecognised command... Try again.\n");
@@ -295,17 +347,17 @@ char** loadCmds(int N_COMMANDS) {
 
     char **myCommands = malloc(sizeof(char*)*N_COMMANDS);
 
-    myCommands[0] = "exit";
-    myCommands[1] = "quit";
-    myCommands[2] = "end";
-    myCommands[3] = "authors";
-    myCommands[4] = "getpid";
-    myCommands[5] = "getppid";
-    myCommands[6] = "pwd";
-    myCommands[7] = "chdir";
-    myCommands[8] = "date";
-    myCommands[9] = "time";
-    myCommands[10] = "historic";
+    myCommands[EXIT] = "exit";
+    myCommands[QUIT] = "quit";
+    myCommands[END] = "end";
+    myCommands[AUTHORS] = "authors";
+    myCommands[GETPID] = "getpid";
+    myCommands[GETPPID] = "getppid";
+    myCommands[PWD] = "pwd";
+    myCommands[CHDIR] = "chdir";
+    myCommands[DATE] = "date";
+    myCommands[TIME] = "time";
+    myCommands[HISTORIC] = "historic";
 
     return myCommands;
 }
@@ -314,6 +366,8 @@ int main() {
     /** Reserves 100 bytes for user input */
     char *inStr = malloc(100);
     int status = 1;
+
+    char * inCopy;
 
     int n_cms = 11;
     char **cms = loadCmds(n_cms);
@@ -328,13 +382,17 @@ int main() {
         input(inStr);
 
         /** Save the command in historic */
-        insert_in_historic(h, inStr);
+        inCopy = strdup(inStr);
 
         /** Tokenizes user input */
         char *tokens[50];
         int ntokens = TrocearCadena(inStr, tokens);
+        status = router(cms, n_cms, tokens, ntokens, h);
 
-        status = router(cms, n_cms, tokens, ntokens);
+        if(strcmp(tokens[0], cms[HISTORIC]) != 0) {
+            insert_in_historic(h, inCopy);
+        }
+        free(inCopy);
 
     }
 
