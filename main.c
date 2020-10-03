@@ -342,7 +342,16 @@ int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens, histor
     return 1;
 }
 
-char** loadCmds(int N_COMMANDS) {
+/**
+ * Function: load_cmds
+ * ------------------
+ * Loads the pointers of the commands words in heap
+ *
+ * N_COMMANDS: number of commands that will be stored
+ *
+ * returns: the pointer to the commands array
+ */
+char** load_cmds(int N_COMMANDS) {
     /** Array of commands and the assigned number */
 
     char **myCommands = malloc(sizeof(char*)*N_COMMANDS);
@@ -370,7 +379,7 @@ int main() {
     char * inCopy;
 
     int n_cms = 11;
-    char **cms = loadCmds(n_cms);
+    char **cms = load_cmds(n_cms);
 
     historic h = create_historic();
 
