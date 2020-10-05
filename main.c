@@ -248,6 +248,7 @@ int authors_cmd(char **args, int nargs) {
  *
  * **args: array of arguments received from user
  * nargs: number of arguments received
+ * h: the address where the history is saved
  *
  * returns: returns 0 when correct, -1 when error
  */
@@ -270,7 +271,16 @@ int historic_cmd(char **args, int nargs, historic h) {
                 for (int i = 0; i < n_elem; ++i) {
                     remove_from_historic(h, 0);
                 }
-                printf("%s", "Cleared history.");
+                printf("%s\n", "Cleared history.");
+                return 0;
+            }
+            if(args[0][0] == '-' && args[0][1] == 'r') {
+                printf("run");
+                return 0;
+            }
+            if(args[0][0] == '-') {
+                printf("see");
+                return 0;
             }
             break;
         default:
@@ -381,7 +391,7 @@ int main() {
         /** Gets user input and writes on inStr */
         input(inStr);
 
-        /** Save the command in historic */
+        /** Saves a copy of the entry */
         inCopy = strdup(inStr);
 
         /** Tokenizes user input */
@@ -389,6 +399,7 @@ int main() {
         int ntokens = TrocearCadena(inStr, tokens);
         status = router(cms, n_cms, tokens, ntokens, h);
 
+        /** If the command is different to HISTORIC, save it in historic and frees copy */
         if(strcmp(tokens[0], cms[HISTORIC]) != 0) {
             insert_in_historic(h, inCopy);
         }
