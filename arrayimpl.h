@@ -1,5 +1,3 @@
-void hello();
-
 typedef struct historic_struct *historic;
 
 historic create_historic();
