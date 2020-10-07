@@ -275,15 +275,36 @@ int historic_cmd(char **args, int nargs, historic h) {
                 return 0;
             }
             if(args[0][0] == '-' && args[0][1] == 'r') {
-                printf("run");
+                if (strlen(args[0]) == 3 && args[0][2] == '0') {
+                    // TODO RUN 0
+                } else {
+                    int n = atoi(args[0] + 2);
+                    if (n == 0) {
+                        printf("%s\n", "Arguments are wrong, check it out.");
+                    } else {
+                        // TODO RUN N
+                    }
+                }
                 return 0;
             }
             if(args[0][0] == '-') {
-                printf("see");
+                if (strlen(args[0]) == 2 && args[0][1] == '0') {
+                    printf("0) %s\n", read_from_historic(h, 0));
+                } else {
+                    int n = atoi(args[0] + 1);
+                    if (n == 0) {
+                        printf("%s\n", "Arguments are wrong, check it out.");
+                    } else {
+                        for (int i = 0; i < n + 1; ++i) {
+                            if (i < n_elem) printf("%d) %s\n", i, read_from_historic(h, i));
+                        }
+                    }
+                }
                 return 0;
             }
             break;
         default:
+            printf("%s\n", "Arguments are wrong, check it out.");
             break;
     }
 
