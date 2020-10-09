@@ -1,3 +1,9 @@
+/**
+ * @author Jorge Teixeira Crespo (jorge.teixeira)
+ * @author Miguel Juncal Paz (miguel.juncalp)
+ *
+ */
+
 #include <stdlib.h>
 #include <memory.h>
 #include "arrayimpl.h"

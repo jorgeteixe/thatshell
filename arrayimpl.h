@@ -1,3 +1,10 @@
+/**
+ * @author Jorge Teixeira Crespo (jorge.teixeira)
+ * @author Miguel Juncal Paz (miguel.juncalp)
+ *
+ */
+
+
 typedef struct historic_struct *historic;
 
 historic create_historic();

@@ -1,3 +1,9 @@
+/**
+ * @author Jorge Teixeira Crespo (jorge.teixeira)
+ * @author Miguel Juncal Paz (miguel.juncalp)
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
