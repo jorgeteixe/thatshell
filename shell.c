@@ -142,7 +142,7 @@ int date_cmd(int nargs) {
     }
     time_t t;
     char buffer[12];
-    struct tm* tc;
+    struct tm *tc;
 
     t = time(NULL);
     tc = localtime(&t);
@@ -169,7 +169,7 @@ int time_cmd(int nargs) {
     }
     time_t t;
     char buffer[10];
-    struct tm* tc;
+    struct tm *tc;
 
     t = time(NULL);
     tc = localtime(&t);
@@ -219,18 +219,21 @@ int chdir_cmd(char **args, int nargs) {
  * returns: returns 0 when correct, -1 when error
  */
 int authors_cmd(char **args, int nargs) {
-    char *authors[] = {"Jorge Teixeira Crespo", "jorge.teixeira@udc.es"};
+    char *authors[2][2] = {
+            {"Jorge Teixeira Crespo", "jorge.teixeira@udc.es"},
+            {"Miguel Juncal Paz",     "miguel.juncalp@udc.es"}
+    };
     switch (nargs) {
         case 0:
-            printf("Author: \n%s (%s)\n", authors[0], authors[1]);
+            printf("Authors: \n%s (%s)\n%s (%s)\n", authors[0][0], authors[0][1], authors[1][0], authors[1][1]);
             return 0;
         case 1:
             if (strcmp(args[0], "-n") == 0) {
-                printf("Author name: %s\n", authors[0]);
+                printf("Authors names:\n %s\n %s\n", authors[0][0], authors[1][0]);
                 return 0;
             }
             if (strcmp(args[0], "-l") == 0) {
-                printf("Author login: %s\n", authors[1]);
+                printf("Authors logins:\n %s\n %s\n", authors[0][1], authors[1][1]);
                 return 0;
             }
         default:
@@ -274,7 +277,7 @@ int historic_cmd(char **args, int nargs, historic h) {
                 printf("%s\n", "Cleared history.");
                 return 0;
             }
-            if(args[0][0] == '-' && args[0][1] == 'r') {
+            if (args[0][0] == '-' && args[0][1] == 'r') {
                 if (strlen(args[0]) == 3 && args[0][2] == '0') {
                     // TODO RUN 0
                 } else {
@@ -287,7 +290,7 @@ int historic_cmd(char **args, int nargs, historic h) {
                 }
                 return 0;
             }
-            if(args[0][0] == '-') {
+            if (args[0][0] == '-') {
                 if (strlen(args[0]) == 2 && args[0][1] == '0') {
                     printf("0) %s\n", read_from_historic(h, 0));
                 } else {
@@ -382,10 +385,10 @@ int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens, histor
  *
  * returns: the pointer to the commands array
  */
-char** load_cmds(int N_COMMANDS) {
+char **load_cmds(int N_COMMANDS) {
     /** Array of commands and the assigned number */
 
-    char **myCommands = malloc(sizeof(char*)*N_COMMANDS);
+    char **myCommands = malloc(sizeof(char *) * N_COMMANDS);
 
     myCommands[EXIT] = "exit";
     myCommands[QUIT] = "quit";
@@ -407,7 +410,7 @@ int main() {
     char *inStr = malloc(100);
     int status = 1;
 
-    char * inCopy;
+    char *inCopy;
 
     int n_cms = 11;
     char **cms = load_cmds(n_cms);
@@ -430,7 +433,7 @@ int main() {
         status = router(cms, n_cms, tokens, ntokens, h);
 
         /** If the command is different to HISTORIC, save it in historic and frees copy */
-        if(strcmp(tokens[0], cms[HISTORIC]) != 0) {
+        if (strcmp(tokens[0], cms[HISTORIC]) != 0) {
             insert_in_historic(h, inCopy);
         }
         free(inCopy);
