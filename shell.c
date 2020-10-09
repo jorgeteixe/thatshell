@@ -261,6 +261,7 @@ int historic_cmd(char **args, int nargs, historic h) {
 
     if (n_elem == 0) {
         printf("%s", "There is no history yet, cannot do anything.\n");
+        return 0;
     }
 
     switch (nargs) {
