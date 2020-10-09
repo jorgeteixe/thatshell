@@ -21,6 +21,9 @@
 #define TIME 9
 #define HISTORIC 10
 
+
+void rerun(historic h);
+
 /**
  * Function: prompt
  * ------------------
@@ -280,13 +283,15 @@ int historic_cmd(char **args, int nargs, historic h) {
             }
             if (args[0][0] == '-' && args[0][1] == 'r') {
                 if (strlen(args[0]) == 3 && args[0][2] == '0') {
-                    // TODO RUN 0
+                    insert_in_historic(h, read_from_historic(h, 0));
+                    rerun(h);
                 } else {
                     int n = atoi(args[0] + 2);
                     if (n == 0) {
                         printf("%s\n", "Arguments are wrong, check it out.");
                     } else {
-                        // TODO RUN N
+                        insert_in_historic(h, read_from_historic(h, n));
+                        rerun(h);
                     }
                 }
                 return 0;
@@ -406,6 +411,20 @@ char **load_cmds(int N_COMMANDS) {
     return myCommands;
 }
 
+void rerun(historic h) {
+    int n_cms = 11;
+    char **cms = load_cmds(n_cms);
+
+    char *cmd = read_from_historic(h, n_elements_in_historic(h) - 1);
+    char *cmdCopy = strdup(cmd);
+
+    /** Tokenizes user input */
+    char *tokens[50];
+    int ntokens = TrocearCadena(cmdCopy, tokens);
+    router(cms, n_cms, tokens, ntokens, h);
+    free(cmdCopy);
+}
+
 int main() {
     /** Reserves 100 bytes for user input */
     char *inStr = malloc(100);
@@ -424,20 +443,22 @@ int main() {
 
         /** Gets user input and writes on inStr */
         input(inStr);
+        if (inStr[0] != '\n') {
 
-        /** Saves a copy of the entry */
-        inCopy = strdup(inStr);
+            /** Saves a copy of the entry */
+            inCopy = strdup(inStr);
 
-        /** Tokenizes user input */
-        char *tokens[50];
-        int ntokens = TrocearCadena(inStr, tokens);
-        status = router(cms, n_cms, tokens, ntokens, h);
+            /** Tokenizes user input */
+            char *tokens[50];
+            int ntokens = TrocearCadena(inStr, tokens);
+            status = router(cms, n_cms, tokens, ntokens, h);
 
-        /** If the command is different to HISTORIC, save it in historic and frees copy */
-        if (strcmp(tokens[0], cms[HISTORIC]) != 0) {
-            insert_in_historic(h, inCopy);
+            /** If the command is different to HISTORIC, save it in historic and frees copy */
+            if (strcmp(tokens[0], cms[HISTORIC]) != 0) {
+                insert_in_historic(h, inCopy);
+            }
+            free(inCopy);
         }
-        free(inCopy);
 
     }
 
