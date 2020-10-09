@@ -423,6 +423,7 @@ void rerun(historic h) {
     int ntokens = TrocearCadena(cmdCopy, tokens);
     router(cms, n_cms, tokens, ntokens, h);
     free(cmdCopy);
+    free(cms);
 }
 
 int main() {
