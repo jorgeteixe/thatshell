@@ -3,4 +3,4 @@ project(thatshell C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(thatshell main.c)
+add_executable(thatshell shell.c arrayimpl.c arrayimpl.h)
