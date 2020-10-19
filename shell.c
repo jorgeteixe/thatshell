@@ -12,6 +12,9 @@
 #include <errno.h>
 #include <time.h>
 #include "arrayimpl.h"
+#include "create.h"
+#include "delete.h"
+#include "list.h"
 
 /** COMMAND CONSTANTS */
 
@@ -26,6 +29,9 @@
 #define DATE 8
 #define TIME 9
 #define HISTORIC 10
+#define CREATE 11
+#define DELETE 12
+#define LIST 13
 
 
 void rerun(historic h);
@@ -381,6 +387,15 @@ int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens, histor
         case HISTORIC:
             historic_cmd(tokens + 1, ntokens - 1, h);
             break;
+        case CREATE:
+            create_cmd(tokens + 1, ntokens - 1);
+            break;
+        case DELETE:
+            delete_cmd(tokens + 1, ntokens - 1);
+            break;
+        case LIST:
+            list_cmd(tokens + 1, ntokens - 1);
+            break;
         default:
             printf("Unrecognised command... Try again.\n");
     }
@@ -413,12 +428,15 @@ char **load_cmds(int N_COMMANDS) {
     myCommands[DATE] = "date";
     myCommands[TIME] = "time";
     myCommands[HISTORIC] = "historic";
+    myCommands[CREATE] = "create";
+    myCommands[DELETE] = "delete";
+    myCommands[LIST] = "list";
 
     return myCommands;
 }
 
 void rerun(historic h) {
-    int n_cms = 11;
+    int n_cms = 14;
     char **cms = load_cmds(n_cms);
 
     char *cmd = read_from_historic(h, n_elements_in_historic(h) - 1);
@@ -439,7 +457,7 @@ int main() {
 
     char *inCopy;
 
-    int n_cms = 11;
+    int n_cms = 14;
     char **cms = load_cmds(n_cms);
 
     historic h = create_historic();
