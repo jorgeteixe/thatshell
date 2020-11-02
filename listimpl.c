@@ -175,6 +175,7 @@ int list_cmd(char **tokens, int ntokens) {
                         list_file(path, rec_flag, hid_flag, long_flag);
                         free(path);
                     }
+                    free(d);
                 } else {
                     list_file(tokens[i], rec_flag, hid_flag, long_flag);
                 }
