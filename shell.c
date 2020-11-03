@@ -13,7 +13,7 @@
 #include <time.h>
 #include "arrayimpl.h"
 #include "create.h"
-#include "delete.h"
+#include "deleteimpl.h"
 #include "listimpl.h"
 
 /** COMMAND CONSTANTS */

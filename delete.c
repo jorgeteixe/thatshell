@@ -4,11 +4,9 @@
  *
  */
 
-#include <stdio.h>
-#include "delete.h"
+#include "deleteimpl.h"
 
-
-int delete_cmd(char **tokens, int ntokens) {
-    printf("delete command\n");
+int main(int argc, char *argv[]) {
+    delete_cmd(argv + 1, argc - 1);
     return 0;
 }

@@ -18,36 +18,37 @@
 #include "listimpl.h"
 
 char LetraTF(mode_t m) {
-    switch (m & S_IFMT) { /*and bit a bit con los bits de formato,0170000 */
+    switch (m & S_IFMT) { /* and bit a bit con los bits de formato,0170000 */
         case S_IFSOCK:
-            return 's';  /*socket */
+            return 's';  /* socket */
         case S_IFLNK:
-            return 'l';    /*symbolic link*/
+            return 'l';    /* symbolic link */
         case S_IFREG:
-            return '-';   /* fichero normal*/
+            return '-';   /* fichero normal */
         case S_IFBLK:
-            return 'b';   /*block device*/
+            return 'b';   /* block device */
         case S_IFDIR:
-            return 'd';   /*directorio */
+            return 'd';   /* directorio */
         case S_IFCHR:
-            return 'c';   /*char  device*/
+            return 'c';   /* char device */
         case S_IFIFO:
-            return 'p';   /*pipe*/
+            return 'p';   /* pipe */
         default:
-            return '?';   /*desconocido, no deberia aparecer*/}
+            return '?';   /* desconocido, no deberia aparecer */
+    }
 }
 
 
 char *ConvierteModo(mode_t m, char *permisos) {
     strcpy(permisos, "----------");
     permisos[0] = LetraTF(m);
-    if (m & S_IRUSR) permisos[1] = 'r';  /*propietario*/
+    if (m & S_IRUSR) permisos[1] = 'r';  /* propietario */
     if (m & S_IWUSR) permisos[2] = 'w';
     if (m & S_IXUSR) permisos[3] = 'x';
-    if (m & S_IRGRP) permisos[4] = 'r';   /*grupo*/
+    if (m & S_IRGRP) permisos[4] = 'r';   /* grupo */
     if (m & S_IWGRP) permisos[5] = 'w';
     if (m & S_IXGRP) permisos[6] = 'x';
-    if (m & S_IROTH) permisos[7] = 'r';   /*resto*/
+    if (m & S_IROTH) permisos[7] = 'r';   /* resto */
     if (m & S_IWOTH) permisos[8] = 'w';
     if (m & S_IXOTH) permisos[9] = 'x';
     if (m & S_ISUID) permisos[3] = 's';  /*setuid, setgid y stickybit*/
@@ -93,7 +94,7 @@ void list_file(char *filename, int rec_flag, int hid_flag, int long_flag) {
     if (S_ISLNK(st.st_mode)) {
         char lnk[st.st_size + 1];
         readlink(filename, lnk, st.st_size + 1);
-        lnk[st.st_size]='\0';
+        lnk[st.st_size] = '\0';
         printf(" -> %s", lnk);
     }
     printf("\n");
@@ -102,7 +103,7 @@ void list_file(char *filename, int rec_flag, int hid_flag, int long_flag) {
         DIR *d;
         d = opendir(filename);
         if (d == NULL) return;
-        printf("\n%s/ content:\n", filename);
+        printf("%s/ content:\n", filename);
         struct dirent *ent;
         while ((ent = readdir(d)) != NULL) {
             if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) continue;
@@ -113,6 +114,8 @@ void list_file(char *filename, int rec_flag, int hid_flag, int long_flag) {
             list_file(path, rec_flag, hid_flag, long_flag);
             free(path);
         }
+        closedir(d);
+        printf("\n");
     }
 
 }
@@ -155,7 +158,7 @@ int list_cmd(char **tokens, int ntokens) {
             if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) continue;
             list_file(ent->d_name, rec_flag, hid_flag, long_flag);
         }
-        free(d);
+        closedir(d);
     } else
         for (int i = flags; i < ntokens; ++i) {
             struct stat st;
@@ -175,7 +178,7 @@ int list_cmd(char **tokens, int ntokens) {
                         list_file(path, rec_flag, hid_flag, long_flag);
                         free(path);
                     }
-                    free(d);
+                    closedir(d);
                 } else {
                     list_file(tokens[i], rec_flag, hid_flag, long_flag);
                 }
