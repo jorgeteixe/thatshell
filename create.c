@@ -13,7 +13,17 @@
 #include <sys/stat.h>
 #include "create.h"
 
-
+/**
+ * Function: create_cmd
+ * ----------------------
+ * Creates a file or a directory.
+ * If the first argument is "-dir" then creates a directory.
+ * Else creates a file.
+ *
+ * @param tokens array of char* with the arguments received
+ * @param ntokens number of tokens received
+ * @return 0 when normal, -1 when error.
+ */
 int create_cmd(char **tokens, int ntokens) {
     int dir_flag = 0;
     if (strcmp(tokens[0], "-dir") == 0) {
@@ -23,20 +33,18 @@ int create_cmd(char **tokens, int ntokens) {
         return -1;
     }
     for (int i = dir_flag; i < ntokens; ++i) {
-
-        if (dir_flag) {
+        if (!dir_flag) {
             int fd;
             fd = open(tokens[i], O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
             if (fd == -1) {
                 printf("Could not create file %s: %s\n", tokens[i], strerror(errno));
-                break;
+                return -1;
             }
             close(fd);
         } else {
-            // TODO FIX THIS, IS NOT CREATING A DIRECTORY
             if (mkdir(tokens[i], S_IRUSR | S_IWUSR | S_IXUSR) == -1) {
                 printf("Could not create directory %s: %s\n", tokens[i], strerror(errno));
-                break;
+                return -1;
             }
         }
 

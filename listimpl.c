@@ -17,6 +17,17 @@
 #include <unistd.h>
 #include "listimpl.h"
 
+
+/**
+ * Function: LetraTF
+ * -----------------
+ * Function copied from the exercise assesment.
+ * From a file, depending on the file type, returns the char related
+ * to the file type.
+ *
+ * @param m the inode's mode data of a file.
+ * @return the caracter to show in long listing, relative to file type.
+ */
 char LetraTF(mode_t m) {
     switch (m & S_IFMT) { /* and bit a bit con los bits de formato,0170000 */
         case S_IFSOCK:
@@ -38,8 +49,17 @@ char LetraTF(mode_t m) {
     }
 }
 
-
-char *ConvierteModo(mode_t m, char *permisos) {
+/**
+ * Function: ConvierteModo
+ * ------------------------
+ * Function copied from the exercise assesment.
+ * Reads from de inode's mode data, the permissions of  the file, and
+ * coverts it to readable string.
+ *
+ * @param m the inode's mode data of a file.
+ * @param permisos the pointer where to write the permissions string formatted
+ */
+void ConvierteModo(mode_t m, char *permisos) {
     strcpy(permisos, "----------");
     permisos[0] = LetraTF(m);
     if (m & S_IRUSR) permisos[1] = 'r';  /* propietario */
@@ -54,9 +74,15 @@ char *ConvierteModo(mode_t m, char *permisos) {
     if (m & S_ISUID) permisos[3] = 's';  /*setuid, setgid y stickybit*/
     if (m & S_ISGID) permisos[6] = 's';
     if (m & S_ISVTX) permisos[9] = 't';
-    return permisos;
 }
 
+/**
+ * Function: file_date
+ * -------------------
+ * From a time data type, prints formatted the time in stdin.
+ *
+ * @param mtim the inode's time data.
+ */
 void file_date(time_t mtim) {
     char buffer[13];
     struct tm *tc;
@@ -67,6 +93,16 @@ void file_date(time_t mtim) {
     printf("%s ", buffer);
 }
 
+/**
+ * Function: list_file
+ * --------------------
+ * List the file received, according to the flags.
+ *
+ * @param filename The file name to print
+ * @param rec_flag 1 If recursive listing.
+ * @param hid_flag 1 If should show hidden files.
+ * @param long_flag 1 If should show with long properties.
+ */
 void list_file(char *filename, int rec_flag, int hid_flag, int long_flag) {
     struct stat st;
     if (lstat(filename, &st) == -1) {
@@ -120,6 +156,15 @@ void list_file(char *filename, int rec_flag, int hid_flag, int long_flag) {
 
 }
 
+/**
+ * Function: list_cmd
+ * ------------------
+ * Contains the logic to use the list command.
+ *
+ * @param tokens The array of arguments.
+ * @param ntokens The number of arguments in tokens.
+ * @return 0 when normal, -1 when error.
+ */
 int list_cmd(char **tokens, int ntokens) {
 
     int rec_flag = 0;
