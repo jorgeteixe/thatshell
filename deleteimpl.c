@@ -3,7 +3,6 @@
  * @author Miguel Juncal Paz (miguel.juncalp)
  *
  */
-
 #include <stdio.h>
 #include <memory.h>
 #include <sys/stat.h>
@@ -84,6 +83,8 @@ void delete_n(char *file) {
             if(rmdir(file)==-1){
                 printf("Error no se puedo eliminar el directorio: %s\n", file);
                 perror("");
+            }else{
+                printf("El fichero (%s) fue eliminado",file);
             }
         }else{
             printf("Error no se puedo eliminar el directorio: '%s' por que no esta vacio\n", file);
@@ -92,6 +93,8 @@ void delete_n(char *file) {
         if(unlink(file)==-1){
             printf("Error no se puedo eliminar el fichero: %s\n", file);
             perror("");
+        }else{
+            printf("El archivo (%s) fue eliminado",file);
         }
     }
 }
