@@ -139,7 +139,7 @@ void list_file(char *filename, int rec_flag, int hid_flag, int long_flag) {
         DIR *d;
         d = opendir(filename);
         if (d == NULL) return;
-        printf("%s/ content:\n", filename);
+        printf("\n%s/ content:\n", filename);
         struct dirent *ent;
         while ((ent = readdir(d)) != NULL) {
             if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) continue;
