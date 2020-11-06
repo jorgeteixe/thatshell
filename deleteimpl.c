@@ -101,7 +101,7 @@ void delete_cmd(char **tokens, int ntokens) {
     int i;
 
     if (ntokens > 0) {
-        if (strcmp("-r", tokens[0]) == 0) {
+        if (strcmp("-rec", tokens[0]) == 0) {
             printf("%s\n",tokens[1]);
             for (i = 1; i < ntokens; i++) {
                 delete_rec(tokens[i]);
