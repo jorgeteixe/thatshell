@@ -1,6 +1,6 @@
 #!/bin/bash
 # Compiles main program
-gcc -g -Wall shell.c arrayimpl.c create.c deleteimpl.c listimpl.c -o shell.out
+gcc -g -Wall shell.c arrayimpl.c create.c deleteimpl.c listimpl.c memory.c -o shell.out
 
 # Compiles secondary programs, from P1
 gcc -g -Wall listimpl.c list.c -o list.out

@@ -15,6 +15,7 @@
 #include "create.h"
 #include "deleteimpl.h"
 #include "listimpl.h"
+#include "memory.h"
 
 /** COMMAND CONSTANTS */
 
@@ -32,6 +33,12 @@
 #define CREATE 11
 #define DELETE 12
 #define LIST 13
+#define MEMORY 14
+#define MEMDUMP 15
+#define MEMFILL 16
+#define RECURSE 17
+#define READFILE 18
+#define WRITEFILE 19
 
 
 void rerun(historic h);
@@ -396,6 +403,24 @@ int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens, histor
         case LIST:
             list_cmd(tokens + 1, ntokens - 1);
             break;
+        case MEMORY:
+            memory_cmd(tokens + 1, ntokens - 1);
+            break;
+        case MEMDUMP:
+            memdump_cmd(tokens + 1, ntokens - 1);
+            break;
+        case MEMFILL:
+            memfill_cmd(tokens + 1, ntokens - 1);
+            break;
+        case RECURSE:
+            recurse_cmd(tokens + 1, ntokens - 1);
+            break;
+        case READFILE:
+            readfile_cmd(tokens + 1, ntokens - 1);
+            break;
+        case WRITEFILE:
+            writefile_cmd(tokens + 1, ntokens - 1);
+            break;
         default:
             printf("Unrecognised command... Try again.\n");
     }
@@ -431,6 +456,12 @@ char **load_cmds(int N_COMMANDS) {
     myCommands[CREATE] = "create";
     myCommands[DELETE] = "delete";
     myCommands[LIST] = "list";
+    myCommands[MEMORY] = "memory";
+    myCommands[MEMDUMP] = "memdump";
+    myCommands[MEMFILL] = "memfill";
+    myCommands[RECURSE] = "recurse";
+    myCommands[READFILE] = "readfile";
+    myCommands[WRITEFILE] = "writefile";
 
     return myCommands;
 }
@@ -457,7 +488,7 @@ int main() {
 
     char *inCopy;
 
-    int n_cms = 14;
+    int n_cms = 20;
     char **cms = load_cmds(n_cms);
 
     historic h = create_historic();

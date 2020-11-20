@@ -1,0 +1,12 @@
+/**
+ * @author Jorge Teixeira Crespo (jorge.teixeira)
+ * @author Miguel Juncal Paz (miguel.juncalp)
+ *
+ */
+
+int memory_cmd(char **tokens, int ntokens);
+int memdump_cmd(char **tokens, int ntokens);
+int memfill_cmd(char **tokens, int ntokens);
+int recurse_cmd(char **tokens, int ntokens);
+int readfile_cmd(char **tokens, int ntokens);
+int writefile_cmd(char **tokens, int ntokens);
