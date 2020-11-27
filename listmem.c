@@ -33,9 +33,7 @@ mem_historic create_memlist(){
         historic->list[i]=NULL;
     }
     return historic;
-    
-    return historic;
-}
+};
 
 void remove_memlist(mem_historic historic){
     for(int i=0 ; i<historic->n_elem ; i++){
@@ -43,6 +41,18 @@ void remove_memlist(mem_historic historic){
     }
     free(historic->list);
 };
+
+char * dateAndTime(){
+    time_t t;
+    struct tm * tm;
+    char * dateAndTime;
+    dateAndTime = (char*)malloc(sizeof(char)*25);
+    t = time(NULL);
+    tm = localtime(&t);
+    strftime(dateAndTime,24,"%d/%m/%Y : %H:%M:%S",tm);
+    return dateAndTime;
+};
+
 
 void insert_in_memlist(mem_historic historic,void* memoryAddress,int size,char* type,char* params){  
 
@@ -55,20 +65,7 @@ void insert_in_memlist(mem_historic historic,void* memoryAddress,int size,char* 
         historic->list[historic->n_elem]->param =params;
         historic->n_elem++;
     }
-}
-
-char * dateAndTime(){
-    time_t t;
-    struct tm * tm;
-    char * dateAndTime;
-    dateAndTime = (char*)malloc(sizeof(char)*40);
-    t = time(NULL);
-    tm = localtime(&t);
-    strftime(dateAndTime,24,"%d/%m/%Y : %H:%M:%S",tm);
-    free(dateAndTime);
-    return dateAndTime;
 };
-
 
 void remove_from_memlist(mem_historic historic , int position){
     int last = historic->n_elem-1;
@@ -95,4 +92,6 @@ command * read_from_memlist(mem_historic historic, int position){
 
 int n_elements_in_memlist(mem_historic historic){
     return historic->n_elem;
-}
+};
+
+
