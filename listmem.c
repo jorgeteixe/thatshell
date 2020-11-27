@@ -9,7 +9,6 @@
 #include <time.h>
 #include "listmem.h"
 
-typedef struct struct_command command;
 
 struct struct_command{
     void * address ;
@@ -45,13 +44,13 @@ void remove_memlist(mem_historic historic){
     free(historic->list);
 };
 
-void insert_in_memlist(mem_historic historic,void* memoryAddress,int size,char* date,char* type,char* params){  
+void insert_in_memlist(mem_historic historic,void* memoryAddress,int size,char* type,char* params){  
 
     if (historic->n_elem<4096){
         historic->list[historic->n_elem]=(command*)malloc(sizeof(command));
         historic->list[historic->n_elem]->address = memoryAddress;
         historic->list[historic->n_elem]->size = size;
-        historic->list[historic->n_elem]->date_and_time = date;
+        historic->list[historic->n_elem]->date_and_time = dateAndTime();
         historic->list[historic->n_elem]->type = type;
         historic->list[historic->n_elem]->param =params;
         historic->n_elem++;
@@ -69,7 +68,6 @@ char * dateAndTime(){
     free(dateAndTime);
     return dateAndTime;
 };
-
 
 
 void remove_from_memlist(mem_historic historic , int position){
