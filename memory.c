@@ -5,12 +5,14 @@
  */
 #include <stdio.h>
 #include <memory.h>
+#include <stdlib.h>
 #include "memory.h"
+#include "listmem.h"
 
-int mem_alloc_malloc(char **tokens, int ntokens);
-int mem_alloc_mmap(char **tokens, int ntokens);
-int mem_alloc_createshared(char **tokens, int ntokens);
-int mem_alloc_shared(char **tokens, int ntokens);
+int mem_alloc_malloc(char **tokens, int ntokens, mem_list ml);
+int mem_alloc_mmap(char **tokens, int ntokens, mem_list ml);
+int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml);
+int mem_alloc_shared(char **tokens, int ntokens, mem_list ml);
 
 int mem_dealloc();
 int mem_dealloc_addr(char* address);
@@ -24,7 +26,7 @@ int mem_show(char **tokens, int ntokens);
 
 int mem_dopmap();
 
-int memory_cmd(char **tokens, int ntokens) {
+int memory_cmd(char **tokens, int ntokens, mem_list ml) {
     if (ntokens == 0) {
         printf("only memory\n");
     } else {
@@ -33,13 +35,13 @@ int memory_cmd(char **tokens, int ntokens) {
                 printf("Error, check the arguments.\n");
             } else {
                 if (strcmp(tokens[1], "-malloc") == 0) {
-                    mem_alloc_malloc(tokens + 2, ntokens - 2);
+                    mem_alloc_malloc(tokens + 2, ntokens - 2, ml);
                 } else if (strcmp(tokens[1], "-mmap") == 0) {
-                    mem_alloc_mmap(tokens + 2, ntokens - 2);
+                    mem_alloc_mmap(tokens + 2, ntokens - 2, ml);
                 } else if (strcmp(tokens[1], "-createshared") == 0) {
-                    mem_alloc_createshared(tokens + 2, ntokens - 2);
+                    mem_alloc_createshared(tokens + 2, ntokens - 2, ml);
                 } else if (strcmp(tokens[1], "-shared") == 0) {
-                    mem_alloc_shared(tokens + 2, ntokens - 2);
+                    mem_alloc_shared(tokens + 2, ntokens - 2, ml);
                 } else {
                     printf("Error, check the arguments.\n");
                 }
@@ -75,46 +77,52 @@ int memory_cmd(char **tokens, int ntokens) {
     return 1;
 }
 
-int memdump_cmd(char **tokens, int ntokens) {
+int memdump_cmd(char **tokens, int ntokens, mem_list ml) {
     // TODO
     printf("Memdump\n\n");
     return 1;
 }
 
-int memfill_cmd(char **tokens, int ntokens) {
+int memfill_cmd(char **tokens, int ntokens, mem_list ml) {
     // TODO
     printf("Memfill\n\n");
     return 1;
 }
 
-int recurse_cmd(char **tokens, int ntokens) {
+int recurse_cmd(char **tokens, int ntokens, mem_list ml) {
     // TODO
     printf("Recurse\n\n");
     return 1;
 }
 
-int readfile_cmd(char **tokens, int ntokens) {
+int readfile_cmd(char **tokens, int ntokens, mem_list ml) {
     // TODO
     printf("Readfile\n\n");
     return 1;
 }
 
-int writefile_cmd(char **tokens, int ntokens) {
+int writefile_cmd(char **tokens, int ntokens, mem_list ml) {
     // TODO
     printf("Writefile\n\n");
     return 1;
 }
 
-int mem_alloc_malloc(char **tokens, int ntokens) {
-    printf("Alloc malloc\n");
-    if (ntokens == 0) printf("No tokens received");
-    for (int i = 0; i < ntokens; ++i) {
-        printf("arg %d: %s\n",i,  tokens[i]);
+int mem_alloc_malloc(char **tokens, int ntokens, mem_list ml) {
+    if (ntokens > 1) {
+        printf("Take a look at the arguments, expecting one.");
+        return -1;
     }
+    if (ntokens == 0) {
+        // SHOW ALL TYPE MALLOC
+        return 1;
+    }
+    void *ptr = malloc(strtol(tokens[0], NULL, 10));
+    printf("%p", &ptr);
+    free(ptr);
     return 1;
 }
 
-int mem_alloc_mmap(char **tokens, int ntokens) {
+int mem_alloc_mmap(char **tokens, int ntokens, mem_list ml) {
     // TODO
     printf("Alloc mmap\n");
     if (ntokens == 0) printf("No tokens received");
@@ -124,7 +132,7 @@ int mem_alloc_mmap(char **tokens, int ntokens) {
     return 1;
 }
 
-int mem_alloc_createshared(char **tokens, int ntokens) {
+int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml) {
     // TODO
     printf("Alloc createshared\n");
     if (ntokens == 0) printf("No tokens received");
@@ -134,7 +142,7 @@ int mem_alloc_createshared(char **tokens, int ntokens) {
     return 1;
 }
 
-int mem_alloc_shared(char **tokens, int ntokens) {
+int mem_alloc_shared(char **tokens, int ntokens, mem_list ml) {
     // TODO
     printf("Alloc shared\n");
     if (ntokens == 0) printf("No tokens received");

@@ -83,7 +83,7 @@ void remove_from_memlist(mem_list historic , int position){
             historic->n_elem--;
         }
     }
-    
+
 };
 
 command * read_from_memlist(mem_list historic, int position){
