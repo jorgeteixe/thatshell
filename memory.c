@@ -106,7 +106,6 @@ int writefile_cmd(char **tokens, int ntokens) {
 }
 
 int mem_alloc_malloc(char **tokens, int ntokens) {
-    // TODO
     printf("Alloc malloc\n");
     if (ntokens == 0) printf("No tokens received");
     for (int i = 0; i < ntokens; ++i) {
