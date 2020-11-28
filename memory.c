@@ -6,6 +6,10 @@
 #include <stdio.h>
 #include <memory.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <errno.h>
 #include "memory.h"
 #include "listmem.h"
 
@@ -122,17 +126,50 @@ int mem_alloc_malloc(char **tokens, int ntokens, mem_list ml) {
         return -1;
     }
     void *ptr = malloc(size);
+    printf("malloc in %p\n", ptr);
     insert_in_memlist(ml, ptr, size, "malloc", "");
     return 1;
 }
 
-int mem_alloc_mmap(char **tokens, int ntokens, mem_list ml) {
-    // TODO
-    printf("Alloc mmap\n");
-    if (ntokens == 0) printf("No tokens received");
-    for (int i = 0; i < ntokens; ++i) {
-        printf("arg %d: %s\n",i,  tokens[i]);
+void *mmapfich(char* fichero, int protection, mem_list ml) {
+    int df, map=MAP_PRIVATE, modo=O_RDONLY;
+    struct stat s;
+    void *p;
+    if (protection&PROT_WRITE) modo = O_RDWR;
+    if(stat(fichero, &s)== -1 || (df=open(fichero, modo))==-1)
+        return NULL;
+    if ((p=mmap(NULL, s.st_size, protection, map, df, 0))==MAP_FAILED) { // TODO FIX THIS
+        printf("%s\n",strerror(errno));
+        return NULL;
     }
+    char *params = malloc(20);
+    sprintf(params, "(fd:%d)", df);
+    insert_in_memlist(ml, p, s.st_size, "mmap", params);
+    free(params);
+    return p;
+}
+
+int mem_alloc_mmap(char **tokens, int ntokens, mem_list ml) {
+    if (ntokens > 2) {
+        printf("Take a look at the arguments, expecting one or two.\n");
+        return -1;
+    }
+    if (ntokens == 0) {
+        print_memlist(ml, "mmap");
+        return 1;
+    }
+    char *perm;
+    void *ptr;
+    int prot = 0;
+    if ((perm=tokens[1])!=NULL && strlen(perm)<4) {
+        if (strchr(perm,'r')!=NULL) prot|=PROT_READ;
+        if (strchr(perm,'w')!=NULL) prot|=PROT_WRITE;
+        if (strchr(perm,'x')!=NULL) prot|=PROT_EXEC;
+    }
+    if ((ptr=mmapfich(tokens[0], prot, ml))==NULL)
+        printf("Cannot map file.\n");
+    else
+        printf("mapped file in %p\n", ptr);
     return 1;
 }
 
