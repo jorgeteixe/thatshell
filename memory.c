@@ -113,12 +113,12 @@ int mem_alloc_malloc(char **tokens, int ntokens, mem_list ml) {
         return -1;
     }
     if (ntokens == 0) {
-        // SHOW ALL TYPE MALLOC
+        print_memlist(ml, "malloc");
         return 1;
     }
-    void *ptr = malloc(strtol(tokens[0], NULL, 10));
-    printf("%p", &ptr);
-    free(ptr);
+    unsigned long size = strtol(tokens[0], NULL, 10);
+    void *ptr = malloc(size);
+    insert_in_memlist(ml, ptr, size, "malloc", "");
     return 1;
 }
 
