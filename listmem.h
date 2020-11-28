@@ -5,15 +5,15 @@
  */
 
 
-typedef struct memory_struct * mem_historic;
+typedef struct memory_struct * mem_list;
 typedef struct struct_command command;
 
 
-mem_historic create_memlist();
-void remove_memlist(mem_historic);
-void insert_in_memlist(mem_historic, void*, int ,char*,char*);
-void remove_from_memlist(mem_historic, int);
-command* read_from_memlist(mem_historic, int);
-int n_elements_in_memlist(mem_historic);
+mem_list create_memlist();
+void remove_memlist(mem_list);
+void insert_in_memlist(mem_list, void*, int , char*, char*);
+void remove_from_memlist(mem_list, int);
+command* read_from_memlist(mem_list, int);
+int n_elements_in_memlist(mem_list);
 
 

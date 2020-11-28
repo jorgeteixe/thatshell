@@ -26,8 +26,8 @@ struct memory_struct {
 
 
 
-mem_historic create_memlist(){
-    mem_historic historic = (mem_historic) malloc(sizeof(struct memory_struct));
+mem_list create_memlist(){
+    mem_list historic = (mem_list) malloc(sizeof(struct memory_struct));
     historic->n_elem = 0;
     for(int i = 0;i<4096;i++){
         historic->list[i]=NULL;
@@ -35,7 +35,7 @@ mem_historic create_memlist(){
     return historic;
 };
 
-void remove_memlist(mem_historic historic){
+void remove_memlist(mem_list historic){
     for(int i=0 ; i<historic->n_elem ; i++){
         free(historic->list[i]);
     }
@@ -54,7 +54,7 @@ char * dateAndTime(){
 };
 
 
-void insert_in_memlist(mem_historic historic,void* memoryAddress,int size,char* type,char* params){  
+void insert_in_memlist(mem_list historic, void* memoryAddress, int size, char* type, char* params){
 
     if (historic->n_elem<4096){
         historic->list[historic->n_elem]=(command*)malloc(sizeof(command));
@@ -67,7 +67,7 @@ void insert_in_memlist(mem_historic historic,void* memoryAddress,int size,char* 
     }
 };
 
-void remove_from_memlist(mem_historic historic , int position){
+void remove_from_memlist(mem_list historic , int position){
     int last = historic->n_elem-1;
     if(historic->n_elem==0){
         printf("the list is empty, you cant remove");
@@ -86,11 +86,11 @@ void remove_from_memlist(mem_historic historic , int position){
     
 };
 
-command * read_from_memlist(mem_historic historic, int position){
+command * read_from_memlist(mem_list historic, int position){
     return historic->list[position];
 };
 
-int n_elements_in_memlist(mem_historic historic){
+int n_elements_in_memlist(mem_list historic){
     return historic->n_elem;
 };
 
