@@ -109,7 +109,7 @@ int writefile_cmd(char **tokens, int ntokens, mem_list ml) {
 
 int mem_alloc_malloc(char **tokens, int ntokens, mem_list ml) {
     if (ntokens > 1) {
-        printf("Take a look at the arguments, expecting one.");
+        printf("Take a look at the arguments, expecting one.\n");
         return -1;
     }
     if (ntokens == 0) {
@@ -117,6 +117,10 @@ int mem_alloc_malloc(char **tokens, int ntokens, mem_list ml) {
         return 1;
     }
     unsigned long size = strtol(tokens[0], NULL, 10);
+    if (size == 0) {
+        printf("That doesn't seem like a valid size\n");
+        return -1;
+    }
     void *ptr = malloc(size);
     insert_in_memlist(ml, ptr, size, "malloc", "");
     return 1;
