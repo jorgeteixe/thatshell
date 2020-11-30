@@ -167,7 +167,7 @@ void *mmapfich(char* fichero, int protection, mem_list ml) {
     if(stat(fichero, &s)== -1 || (df=open(fichero, modo))==-1)
         return NULL;
     if ((p=mmap(NULL, s.st_size, protection, map, df, 0))==MAP_FAILED) {
-        printf("%s\n",strerror(errno));
+        //printf("%s\n",strerror(errno));
         return NULL;
     }
     char *params = malloc(20);
