@@ -123,8 +123,19 @@ int memdump_cmd(char **tokens, int ntokens, mem_list ml) {
 }
 
 int memfill_cmd(char **tokens, int ntokens, mem_list ml) {
-    // Jorge working here
-    printf("Memfill\n\n");
+    int tam = 128;
+    char c = 'A';
+    if (ntokens == 0 || ntokens > 3){
+        printf("Error, check the arguments.");
+        return -1;
+    }
+    char *ptr = (char *) strtol(tokens[0], NULL, 16);
+    if (ntokens > 1) tam = strtol(tokens[1], NULL, 10);
+    if (tam <= 0) tam = 128;
+    if (ntokens == 3) c = strtol(tokens[2], NULL, 16);
+    for (int i = 0; i < tam; i++) {
+        ptr[i] = c;
+    }
     return 1;
 }
 
