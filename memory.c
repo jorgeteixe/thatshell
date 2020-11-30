@@ -107,7 +107,7 @@ int memdump_cmd(char **tokens, int ntokens, mem_list ml) {
                 printf("%3c", ptr[pos]);
             } else printf("%3c", ' ');
         } else {
-            printf(" %02X", ptr[pos]);
+            printf(" %02hhX", ptr[pos]);
         }
         pos++;
     }
