@@ -36,7 +36,7 @@ int mem_dealloc_shared(char **tokens, int ntokens);
 
 int mem_deletekey(char *key);
 
-int mem_show(char **tokens, int ntokens);
+int mem_show(char **tokens, int ntokens,mem_list ml);
 
 int mem_dopmap();
 
@@ -79,7 +79,7 @@ int memory_cmd(char **tokens, int ntokens, mem_list ml) {
                 printf("Error, check the arguments.\n");
             } else mem_deletekey(tokens[1]);
         } else if (strcmp(tokens[0], "-show") == 0) {
-            mem_show(tokens + 1, ntokens - 1);
+            mem_show(tokens + 1, ntokens - 1,ml);
         } else if (strcmp(tokens[0], "-dopmap") == 0) {
             if (ntokens > 1) {
                 printf("Error, check the arguments.\n");
@@ -242,7 +242,7 @@ void * ObtenerMemoriaShmget (key_t clave, size_t tam, mem_list ml){
     shmctl (id,IPC_STAT,&s);
     char temp[40];
     snprintf(temp,40,"%d",clave);
-    insert_in_memlist(ml,p,tam,"shared memory",*temp);
+    insert_in_memlist(ml,p,tam,"shared memory",temp);
     return (p);
 }
 
@@ -322,10 +322,21 @@ int mem_deletekey(char *key) {
     return 1;
 }
 
-int mem_show(char **tokens, int ntokens) {
-    // TODO
-    printf("Show memory\n");
-    if (ntokens == 0) printf("No tokens received");
+int mem_show(char **tokens, int ntokens, mem_list ml) {
+    //TODO
+    if (ntokens==0)
+        printf("TODO");
+    if (ntokens == 1){
+        if (strcmp(tokens[0],"-malloc")==0)
+            print_memlist(ml,"malloc");
+        if (strcmp(tokens[0],"-shared")==0)
+            print_memlist(ml,"shared memory");
+        if (strcmp(tokens[0],"-mmap")==0)
+            print_memlist(ml,"mmap");
+        if (strcmp(tokens[0],"-all")==0)
+            print_memlist(ml,NULL);
+        return 1;
+    }
     for (int i = 0; i < ntokens; ++i) {
         printf("arg %d: %s\n", i, tokens[i]);
     }
