@@ -123,7 +123,7 @@ int memdump_cmd(char **tokens, int ntokens, mem_list ml) {
 }
 
 int memfill_cmd(char **tokens, int ntokens, mem_list ml) {
-    // TODO
+    // Jorge working here
     printf("Memfill\n\n");
     return 1;
 }
