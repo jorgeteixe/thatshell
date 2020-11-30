@@ -10,6 +10,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <ctype.h>
 #include "memory.h"
 #include "listmem.h"
 
@@ -82,8 +83,35 @@ int memory_cmd(char **tokens, int ntokens, mem_list ml) {
 }
 
 int memdump_cmd(char **tokens, int ntokens, mem_list ml) {
-    // In progress Jorge
-    printf("Memdump\n\n");
+    long tam = 25;
+    if (ntokens == 0) {
+        printf("Should receive a valid address.\n");
+        return -1;
+    }
+    if (ntokens > 2) {
+        printf("Error, check the arguments.\n");
+        return -1;
+    }
+    if (ntokens == 2) tam = strtol(tokens[1],NULL, 10);
+    if (tam <= 0) tam = 25;
+    char * ptr = (char *)strtol(tokens[0], NULL, 16);
+    int pos = 0;
+    for (int i = 0; i < tam * 2; i++) {
+        if (i != 0 && i%25 == 0)  {
+            printf("\n");
+            pos = pos - 25;
+        }
+        if (i != 0 && i % 50 == 0) pos = pos + 25;
+        if (i / (float)50 - i/50 < 0.5) {
+            if (isprint(ptr[pos])) {
+                printf("%3c", ptr[pos]);
+            } else printf("%3c", ' ');
+        } else {
+            printf(" %02X", ptr[pos]);
+        }
+        pos++;
+    }
+    printf("\n");
     return 1;
 }
 
@@ -138,7 +166,7 @@ void *mmapfich(char* fichero, int protection, mem_list ml) {
     if (protection&PROT_WRITE) modo = O_RDWR;
     if(stat(fichero, &s)== -1 || (df=open(fichero, modo))==-1)
         return NULL;
-    if ((p=mmap(NULL, s.st_size, protection, map, df, 0))==MAP_FAILED) { // TODO FIX THIS
+    if ((p=mmap(NULL, s.st_size, protection, map, df, 0))==MAP_FAILED) {
         printf("%s\n",strerror(errno));
         return NULL;
     }
