@@ -82,7 +82,7 @@ int memory_cmd(char **tokens, int ntokens, mem_list ml) {
 }
 
 int memdump_cmd(char **tokens, int ntokens, mem_list ml) {
-    // TODO
+    // In progress Jorge
     printf("Memdump\n\n");
     return 1;
 }
