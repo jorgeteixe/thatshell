@@ -101,4 +101,14 @@ void print_memlist(mem_list ml, char* type) {
         }
     }
 }
+void print_sharedmem_key_memlist(mem_list ml, char* key) {
+    char type[]="shared memory";
+    for (int i = 0; i < n_elements_in_memlist(ml); ++i) {
+        command *cmd = read_from_memlist(ml, i);
+        if (type == NULL || strcmp(type, cmd->type) == 0) {
+            if (strcmp(cmd->param,key)==0)
+                printf("%p: size=%lu. %s %s %s\n", cmd->address, cmd->size, cmd->type, cmd->param, cmd->date_and_time);
+        }
+    }
+}
 

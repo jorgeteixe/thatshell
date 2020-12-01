@@ -11,3 +11,4 @@ int memfill_cmd(char **tokens, int ntokens, mem_list ml);
 int recurse_cmd(char **tokens, int ntokens, mem_list ml);
 int readfile_cmd(char **tokens, int ntokens, mem_list ml);
 int writefile_cmd(char **tokens, int ntokens, mem_list ml);
+int mem_show(char**tokens, int ntokens,mem_list ml);

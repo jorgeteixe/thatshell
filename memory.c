@@ -13,6 +13,8 @@
 #include <ctype.h>
 #include "memory.h"
 #include "listmem.h"
+#include <sys/shm.h>
+
 
 int mem_alloc_malloc(char **tokens, int ntokens, mem_list ml);
 
@@ -34,7 +36,7 @@ int mem_dealloc_shared(char **tokens, int ntokens);
 
 int mem_deletekey(char *key);
 
-int mem_show(char **tokens, int ntokens);
+int mem_show(char **tokens, int ntokens,mem_list ml);
 
 int mem_dopmap();
 
@@ -44,7 +46,7 @@ int memory_cmd(char **tokens, int ntokens, mem_list ml) {
     } else {
         if (strcmp(tokens[0], "-allocate") == 0) {
             if (ntokens == 1) {
-                printf("Error, check the arguments.\n");
+                print_memlist(ml,NULL);
             } else {
                 if (strcmp(tokens[1], "-malloc") == 0) {
                     mem_alloc_malloc(tokens + 2, ntokens - 2, ml);
@@ -77,7 +79,7 @@ int memory_cmd(char **tokens, int ntokens, mem_list ml) {
                 printf("Error, check the arguments.\n");
             } else mem_deletekey(tokens[1]);
         } else if (strcmp(tokens[0], "-show") == 0) {
-            mem_show(tokens + 1, ntokens - 1);
+            mem_show(tokens + 1, ntokens - 1,ml);
         } else if (strcmp(tokens[0], "-dopmap") == 0) {
             if (ntokens > 1) {
                 printf("Error, check the arguments.\n");
@@ -237,24 +239,57 @@ int mem_alloc_mmap(char **tokens, int ntokens, mem_list ml) {
     return 1;
 }
 
-int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml) {
-    // TODO
-    printf("Alloc createshared\n");
-    if (ntokens == 0) printf("No tokens received");
-    for (int i = 0; i < ntokens; ++i) {
-        printf("arg %d: %s\n", i, tokens[i]);
+void * ObtenerMemoriaShmget (key_t clave, size_t tam, mem_list ml){
+    void * p;
+    int aux,id,flags=0777;
+    struct shmid_ds s;
+    if (tam) /*si tam no es 0 la crea en modo exclusivo */
+        flags=flags | IPC_CREAT | IPC_EXCL;
+            /*if tam = 0 try to access */
+    if (clave==IPC_PRIVATE) /*no nos vale*/
+        {errno=EINVAL; return NULL;}
+    if ((id=shmget(clave, tam, flags))==-1)
+        return (NULL);
+    if ((p=shmat(id,NULL,0))==(void*) -1){
+        aux=errno; /*si se ha creado y no se puede mapear*/
+        if (tam) /*se borra */
+            shmctl(id,IPC_RMID,NULL);
+        errno=aux;
+        return (NULL);
     }
+    shmctl (id,IPC_STAT,&s);
+    char temp[40];
+    snprintf(temp,40,"%d",clave);
+    insert_in_memlist(ml,p,tam,"shared memory",temp);
+    return (p);
+}
+
+
+int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml) {
+    key_t k;
+    size_t tam=0;
+    void *p;
+    if (tokens[0]==NULL || tokens[1]==NULL)
+        {/*Listar Direcciones de Memoria Shared */ return -1;}
+        k=(key_t) atoi(tokens[0]);
+    if (tokens[1]!=NULL)
+        tam=(size_t) atoll(tokens[1]);
+    if ((p=ObtenerMemoriaShmget(k,tam,ml))==NULL)
+        perror ("Cannot allocate:");
+    else
+    printf ("Allocated shared memory (key %d) asigned at %p\n",k,p);
     return 1;
 }
 
 int mem_alloc_shared(char **tokens, int ntokens, mem_list ml) {
-    // TODO
-    printf("Alloc shared\n");
-    if (ntokens == 0) printf("No tokens received");
-    for (int i = 0; i < ntokens; ++i) {
-        printf("arg %d: %s\n", i, tokens[i]);
+
+    if (ntokens == 0){
+        print_memlist(ml,"shared memory");
+        return 1;
+    }else{
+        print_sharedmem_key_memlist(ml,tokens[0]);
+        return 0;
     }
-    return 1;
 }
 
 int mem_dealloc_malloc(char **tokens, int ntokens) {
@@ -305,10 +340,21 @@ int mem_deletekey(char *key) {
     return 1;
 }
 
-int mem_show(char **tokens, int ntokens) {
-    // TODO
-    printf("Show memory\n");
-    if (ntokens == 0) printf("No tokens received");
+int mem_show(char **tokens, int ntokens, mem_list ml) {
+    //TODO
+    if (ntokens==0)
+        printf("TODO");
+    if (ntokens == 1){
+        if (strcmp(tokens[0],"-malloc")==0)
+            print_memlist(ml,"malloc");
+        if (strcmp(tokens[0],"-shared")==0)
+            print_memlist(ml,"shared memory");
+        if (strcmp(tokens[0],"-mmap")==0)
+            print_memlist(ml,"mmap");
+        if (strcmp(tokens[0],"-all")==0)
+            print_memlist(ml,NULL);
+        return 1;
+    }
     for (int i = 0; i < ntokens; ++i) {
         printf("arg %d: %s\n", i, tokens[i]);
     }
