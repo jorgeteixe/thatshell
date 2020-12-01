@@ -327,7 +327,7 @@ void * ObtenerMemoriaShmget (key_t clave, size_t tam, mem_list ml){
     shmctl (id,IPC_STAT,&s);
     char temp[40];
     snprintf(temp,40,"%d",clave);
-    insert_in_memlist(ml,p,tam,"shared memory",temp);
+    insert_in_memlist(ml,p,tam,"shared",temp);
     return (p);
 }
 
@@ -351,7 +351,7 @@ int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml) {
 int mem_alloc_shared(char **tokens, int ntokens, mem_list ml) {
 
     if (ntokens == 0){
-        print_memlist(ml,"shared memory");
+        print_memlist(ml,"shared");
         return 1;
     }else{
         print_sharedmem_key_memlist(ml,tokens[0]);
@@ -415,7 +415,7 @@ int mem_show(char **tokens, int ntokens, mem_list ml) {
         if (strcmp(tokens[0],"-malloc")==0)
             print_memlist(ml,"malloc");
         if (strcmp(tokens[0],"-shared")==0)
-            print_memlist(ml,"shared memory");
+            print_memlist(ml,"shared");
         if (strcmp(tokens[0],"-mmap")==0)
             print_memlist(ml,"mmap");
         if (strcmp(tokens[0],"-all")==0)
