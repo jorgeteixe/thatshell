@@ -409,19 +409,19 @@ int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens, histor
             memory_cmd(tokens + 1, ntokens - 1, ml);
             break;
         case MEMDUMP:
-            memdump_cmd(tokens + 1, ntokens - 1, ml);
+            memdump_cmd(tokens + 1, ntokens - 1);
             break;
         case MEMFILL:
-            memfill_cmd(tokens + 1, ntokens - 1, ml);
+            memfill_cmd(tokens + 1, ntokens - 1);
             break;
         case RECURSE:
-            recurse_cmd(tokens + 1, ntokens - 1, ml);
+            recurse_cmd(tokens + 1, ntokens - 1);
             break;
         case READFILE:
-            readfile_cmd(tokens + 1, ntokens - 1, ml);
+            readfile_cmd(tokens + 1, ntokens - 1);
             break;
         case WRITEFILE:
-            writefile_cmd(tokens + 1, ntokens - 1, ml);
+            writefile_cmd(tokens + 1, ntokens - 1);
             break;
         default:
             printf("Unrecognised command... Try again.\n");

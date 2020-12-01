@@ -14,6 +14,7 @@
 #include "memory.h"
 #include "listmem.h"
 #include <sys/shm.h>
+#include <unistd.h>
 
 
 int mem_alloc_malloc(char **tokens, int ntokens, mem_list ml);
@@ -91,7 +92,7 @@ int memory_cmd(char **tokens, int ntokens, mem_list ml) {
     return 1;
 }
 
-int memdump_cmd(char **tokens, int ntokens, mem_list ml) {
+int memdump_cmd(char **tokens, int ntokens) {
     long tam = 25;
     if (ntokens == 0) {
         printf("Should receive a valid address.\n");
@@ -124,7 +125,7 @@ int memdump_cmd(char **tokens, int ntokens, mem_list ml) {
     return 1;
 }
 
-int memfill_cmd(char **tokens, int ntokens, mem_list ml) {
+int memfill_cmd(char **tokens, int ntokens) {
     int tam = 128;
     char c = 'A';
     if (ntokens == 0 || ntokens > 3){
@@ -151,7 +152,7 @@ void recursive(int n) {
     if (n>0) recursive(--n);
 }
 
-int recurse_cmd(char **tokens, int ntokens, mem_list ml) {
+int recurse_cmd(char **tokens, int ntokens) {
     if (ntokens != 1) {
         printf("Error, check the arguments.\n");
         return -1;
@@ -165,13 +166,42 @@ int recurse_cmd(char **tokens, int ntokens, mem_list ml) {
     return 1;
 }
 
-int readfile_cmd(char **tokens, int ntokens, mem_list ml) {
-    // Jorge starting here
-    printf("Readfile\n\n");
+#define LEERCOMPLETO ((ssize_t)-1)
+ssize_t LeerFichero(char *fich, void *p, ssize_t n) {
+    ssize_t nleidos, tam = n;
+    int df, aux;
+    struct stat s;
+    if (stat(fich, &s) == -1 || (df = open(fich, O_RDONLY)) == -1)
+        return ((ssize_t) -1);
+    if (n == LEERCOMPLETO)
+        tam = (ssize_t) s.st_size;
+    if ((nleidos = read(df, p, tam)) == -1) {
+        aux = errno;
+        close(df);
+        errno = aux;
+        return ((ssize_t) -1);
+    }
+    close(df);
+    return (nleidos);
+}
+
+int readfile_cmd(char **tokens, int ntokens) {
+    if (ntokens > 3 || ntokens < 2) {
+        printf("Error, check the arguments.");
+    }
+    ssize_t size = (ssize_t)-1;
+    if (ntokens == 3) size = (ssize_t)strtol(tokens[2], NULL, 10);
+    if (LeerFichero(tokens[0],
+                    (void *)strtol(tokens[1], NULL, 16),
+                    size)==-1) {
+        printf("%s\n",strerror(errno));
+        return -1;
+    }
+    printf("%s successfully read into memory.\n", tokens[0]);
     return 1;
 }
 
-int writefile_cmd(char **tokens, int ntokens, mem_list ml) {
+int writefile_cmd(char **tokens, int ntokens) {
     // TODO
     printf("Writefile\n\n");
     return 1;
