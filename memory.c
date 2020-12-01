@@ -166,7 +166,7 @@ int recurse_cmd(char **tokens, int ntokens, mem_list ml) {
 }
 
 int readfile_cmd(char **tokens, int ntokens, mem_list ml) {
-    // TODO
+    // Jorge starting here
     printf("Readfile\n\n");
     return 1;
 }
