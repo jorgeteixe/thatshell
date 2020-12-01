@@ -36,7 +36,8 @@ mem_list create_memlist() {
 
 void remove_memlist(mem_list historic) {
     for (int i = 0; i < historic->n_elem; i++) {
-        free(historic->list[i]);
+        if (historic->list[i] != NULL)
+            free(historic->list[i]);
     }
     free(historic->list);
 };

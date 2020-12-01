@@ -187,7 +187,7 @@ ssize_t LeerFichero(char *fich, void *p, ssize_t n) {
 
 int readfile_cmd(char **tokens, int ntokens) {
     if (ntokens > 3 || ntokens < 2) {
-        printf("Error, check the arguments.");
+        printf("Error, check the arguments.\n");
     }
     ssize_t size = (ssize_t)-1;
     if (ntokens == 3) size = (ssize_t)strtol(tokens[2], NULL, 10);
@@ -201,9 +201,46 @@ int readfile_cmd(char **tokens, int ntokens) {
     return 1;
 }
 
+int toFileFromMem(char *file, void *p, ssize_t n, int o_flag) {
+    int fd, aux;
+    struct stat s;
+    if (o_flag && stat(file, &s) == -1) {
+        printf("%s\n",strerror(errno));
+        return -1;
+    } else if (stat(file, &s) != -1 && !o_flag){
+        printf("File exists, use overwrite mode.\n");
+        return -2;
+    }
+    if ((fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR)) == -1)
+        return -1;
+    if (write(fd, p, n) == -1) {
+        aux = errno;
+        close(fd);
+        errno = aux;
+        return -1;
+    }
+    close(fd);
+    return 1;
+}
+
 int writefile_cmd(char **tokens, int ntokens) {
-    // TODO
-    printf("Writefile\n\n");
+    if (ntokens < 3 || ntokens > 4) {
+        printf("Error, check the arguments.\n");
+        return -1;
+    }
+    int i = 0, o_flag = 0;
+    if (strcmp(tokens[0],"-o")==0) {
+        o_flag = 1;
+        i++;
+    }
+    if (toFileFromMem(tokens[i],
+                      (void *)strtol(tokens[i + 1], NULL, 16),
+                      (ssize_t)strtol(tokens[i + 2], NULL, 10), o_flag) == -1) {
+
+        printf("%s\n",strerror(errno));
+        return -1;
+    }
+    printf("Wrote file.\n");
     return 1;
 }
 
