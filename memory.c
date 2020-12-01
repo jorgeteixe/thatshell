@@ -139,9 +139,27 @@ int memfill_cmd(char **tokens, int ntokens, mem_list ml) {
     return 1;
 }
 
+void recursive(int n) {
+    char auto_array[4096];
+    static char stat_array[4096];
+    printf("Parameter %2d:\t %p\n", n, &n);
+    printf("Auto array:\t\t %p\n", auto_array);
+    printf("Static array:\t %p\n", stat_array);
+    printf("\n");
+    if (n>0) recursive(--n);
+}
+
 int recurse_cmd(char **tokens, int ntokens, mem_list ml) {
-    // TODO
-    printf("Recurse\n\n");
+    if (ntokens != 1) {
+        printf("Error, check the arguments.\n");
+        return -1;
+    }
+    int n = strtol(tokens[0], NULL, 10);
+    if (n <=0) {
+        printf("Number not valid. \n");
+        return -1;
+    }
+    recursive(n);
     return 1;
 }
 
