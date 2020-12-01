@@ -103,7 +103,7 @@ void print_memlist(mem_list ml, char* type) {
     }
 }
 void print_sharedmem_key_memlist(mem_list ml, char* key) {
-    char type[]="shared memory";
+    char type[]="shared";
     for (int i = 0; i < n_elements_in_memlist(ml); ++i) {
         command *cmd = read_from_memlist(ml, i);
         if (type == NULL || strcmp(type, cmd->type) == 0) {
