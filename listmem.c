@@ -12,7 +12,6 @@
 #include <unistd.h>
 
 
-
 struct struct_command {
     void *address;
     unsigned long size;
@@ -39,8 +38,12 @@ mem_list create_memlist() {
 
 void remove_memlist(mem_list historic) {
     for (int i = 0; i < historic->n_elem; i++) {
-        if (historic->list[i] != NULL)
+        if (historic->list[i] != NULL) {
+            free(historic->list[i]->param);
+            // TODO DEALLOC EVERY ADDRESS BEFORE THIS
+            free(historic->list[i]->address);
             free(historic->list[i]);
+        }
     }
     free(historic->list);
 };
@@ -56,22 +59,22 @@ char *dateAndTime() {
     return dateAndTime;
 };
 
-int pos_in_mem_list(mem_list historic ,char* type ,char* param){
-    for(int i=0; i<n_elements_in_memlist(historic); i++){
-        if (strcmp(historic->list[i]->type,type)==0){
-            if(strcmp(type,"malloc")==0){
-                unsigned long int tmpInt=0;
-                tmpInt=strtoul(param,NULL,10);
-                if(tmpInt==historic->list[i]->size){
+int pos_in_mem_list(mem_list historic, char *type, char *param) {
+    for (int i = 0; i < n_elements_in_memlist(historic); i++) {
+        if (strcmp(historic->list[i]->type, type) == 0) {
+            if (strcmp(type, "malloc") == 0) {
+                unsigned long int tmpInt = 0;
+                tmpInt = strtoul(param, NULL, 10);
+                if (tmpInt == historic->list[i]->size) {
                     return i;
                 }
             }
-            if(strcmp(type,"mmap")==0){
-                if(strcmp(param,historic->list[i]->param)){
+            if (strcmp(type, "mmap") == 0) {
+                if (strcmp(param, historic->list[i]->param)) {
                     return i;
                 }
             }
-           /// if (strcmp(type,""))
+            /// if (strcmp(type,""))
         }
     }
     return -1;
@@ -112,18 +115,19 @@ void remove_from_memlist(mem_list historic, int position) {
         }
     }
 };
-void unmap_from_memlist(mem_list historic ,int position){
-    int last = n_elements_in_memlist(historic)-1;
+
+void unmap_from_memlist(mem_list historic, int position) {
+    int last = n_elements_in_memlist(historic) - 1;
     if (historic->n_elem == 0) {
         printf("the list is empty, you cant remove");
     } else {
         if (position == last) {
-            if (munmap(historic->list[position]->address,historic->list[position]->size)==0)
+            if (munmap(historic->list[position]->address, historic->list[position]->size) == 0)
                 close(atoi(historic->list[position]->param + 4));
             free(historic->list[position]);
             historic->n_elem--;
         } else {
-            if (munmap(historic->list[position]->address,historic->list[position]->size)==0)
+            if (munmap(historic->list[position]->address, historic->list[position]->size) == 0)
                 close(atoi(historic->list[position]->param + 4));
             free(historic->list[position]);
             for (int i = position; i <= last; ++i) {
@@ -142,7 +146,7 @@ int n_elements_in_memlist(mem_list historic) {
     return historic->n_elem;
 };
 
-void print_memlist(mem_list ml, char* type) {
+void print_memlist(mem_list ml, char *type) {
     for (int i = 0; i < n_elements_in_memlist(ml); ++i) {
         command *cmd = read_from_memlist(ml, i);
         if (type == NULL || strcmp(type, cmd->type) == 0) {
@@ -150,13 +154,15 @@ void print_memlist(mem_list ml, char* type) {
         }
     }
 }
-void print_sharedmem_key_memlist(mem_list ml, char* key) {
-    char type[]="shared";
+
+void print_sharedmem_key_memlist(mem_list ml, char *key) {
+    char type[] = "shared";
     for (int i = 0; i < n_elements_in_memlist(ml); ++i) {
         command *cmd = read_from_memlist(ml, i);
         if (type == NULL || strcmp(type, cmd->type) == 0) {
-            if (strcmp(cmd->param,key)==0)
-                printf("%p: size=%lu. %s (key:%s) %s\n", cmd->address, cmd->size, cmd->type, cmd->param, cmd->date_and_time);
+            if (strcmp(cmd->param, key) == 0)
+                printf("%p: size=%lu. %s (key:%s) %s\n", cmd->address, cmd->size, cmd->type, cmd->param,
+                       cmd->date_and_time);
         }
     }
 }

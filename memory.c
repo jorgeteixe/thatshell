@@ -25,8 +25,6 @@ int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml);
 
 int mem_alloc_shared(char **tokens, int ntokens, mem_list ml);
 
-int mem_dealloc();
-
 int mem_dealloc_addr(char *address);
 
 int mem_dealloc_malloc(char **tokens, int ntokens, mem_list ml);
@@ -189,6 +187,7 @@ ssize_t LeerFichero(char *fich, void *p, ssize_t n) {
 int readfile_cmd(char **tokens, int ntokens) {
     if (ntokens > 3 || ntokens < 2) {
         printf("Error, check the arguments.\n");
+        return -1;
     }
     ssize_t size = (ssize_t) -1;
     if (ntokens == 3) size = (ssize_t) strtol(tokens[2], NULL, 10);
@@ -277,7 +276,7 @@ void *mmapfich(char *fichero, int protection, mem_list ml) {
         return NULL;
     }
     char *params = malloc(20);
-    sprintf(params, "(fd:%d)", df);
+    sprintf(params, "fd:%d", df);
     insert_in_memlist(ml, p, s.st_size, "mmap", params);
     free(params);
     return p;
@@ -342,7 +341,10 @@ int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml) {
     void *p;
     if (ntokens == 0)
         print_memlist(ml, "shared");
-    if (tokens[0] == NULL || tokens[1] == NULL) {/*Listar Direcciones de Memoria Shared */ return -1; }
+    if (tokens[0] == NULL || tokens[1] == NULL) {
+        /*Listar Direcciones de Memoria Shared */
+        return -1;
+    }
     k = (key_t) atoi(tokens[0]);
     if (tokens[1] != NULL)
         tam = (size_t) atoll(tokens[1]);
@@ -402,10 +404,6 @@ int mem_dealloc_shared(char **tokens, int ntokens) {
     for (int i = 0; i < ntokens; ++i) {
         printf("arg %d: %s\n", i, tokens[i]);
     }
-    return 1;
-}
-
-int mem_dealloc(mem_list ml) {
     return 1;
 }
 
