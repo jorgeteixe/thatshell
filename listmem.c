@@ -119,12 +119,12 @@ void unmap_from_memlist(mem_list historic ,int position){
     } else {
         if (position == last) {
             if (munmap(historic->list[position]->address,historic->list[position]->size)==0)
-                close(atoi(historic->list[position]->param));
+                close(atoi(historic->list[position]->param + 4));
             free(historic->list[position]);
             historic->n_elem--;
         } else {
-            munmap(historic->list[position]->address,historic->list[position]->size);
-          ///  close(atoi(historic->list[position]->param));
+            if (munmap(historic->list[position]->address,historic->list[position]->size)==0)
+                close(atoi(historic->list[position]->param + 4));
             free(historic->list[position]);
             for (int i = position; i <= last; ++i) {
                 historic->list[i] = historic->list[i + 1];
