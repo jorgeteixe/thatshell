@@ -9,6 +9,8 @@
 #include <time.h>
 #include <sys/mman.h>
 #include "listmem.h"
+#include <unistd.h>
+
 
 
 struct struct_command {
@@ -114,10 +116,12 @@ void unmap_from_memlist(mem_list historic ,int position){
     } else {
         if (position == last) {
             munmap(historic->list[position]->address,historic->list[position]->size);
+            close(atoi(historic->list[position]->param));
             free(historic->list[position]);
             historic->n_elem--;
         } else {
             munmap(historic->list[position]->address,historic->list[position]->size);
+            close(atoi(historic->list[position]->param));
             free(historic->list[position]);
             for (int i = position; i <= last; ++i) {
                 historic->list[i] = historic->list[i + 1];
