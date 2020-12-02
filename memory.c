@@ -63,7 +63,7 @@ int memory_cmd(char **tokens, int ntokens, mem_list ml) {
             }
         } else if (strcmp(tokens[0], "-dealloc") == 0) {
             if (ntokens == 1) {
-                mem_dealloc();
+                print_memlist(ml,NULL);
             } else {
                 if (strcmp(tokens[1], "-malloc") == 0) {
                     mem_dealloc_malloc(tokens + 2, ntokens - 2);
@@ -326,7 +326,9 @@ void * ObtenerMemoriaShmget (key_t clave, size_t tam, mem_list ml){
     }
     shmctl (id,IPC_STAT,&s);
     char temp[40];
-    snprintf(temp,40,"%d",clave);
+    int inttemp=clave;
+    snprintf(temp,40,"%d",inttemp);
+    printf("%s",temp);
     insert_in_memlist(ml,p,tam,"shared",temp);
     return (p);
 }
@@ -389,9 +391,7 @@ int mem_dealloc_shared(char **tokens, int ntokens) {
     return 1;
 }
 
-int mem_dealloc() {
-    // TODO
-    printf("List to dealloc\n");
+int mem_dealloc(mem_list ml) {
     return 1;
 }
 

@@ -62,7 +62,7 @@ void insert_in_memlist(mem_list historic, void *memoryAddress, unsigned long siz
         historic->list[historic->n_elem]->size = size;
         historic->list[historic->n_elem]->date_and_time = dateAndTime();
         historic->list[historic->n_elem]->type = type;
-        historic->list[historic->n_elem]->param = params;
+        historic->list[historic->n_elem]->param = strdup(params);
         historic->n_elem++;
     }
 };
@@ -98,7 +98,7 @@ void print_memlist(mem_list ml, char* type) {
     for (int i = 0; i < n_elements_in_memlist(ml); ++i) {
         command *cmd = read_from_memlist(ml, i);
         if (type == NULL || strcmp(type, cmd->type) == 0) {
-            printf("%p: size=%lu. %s %s %s\n", cmd->address, cmd->size, cmd->type, cmd->param, cmd->date_and_time);
+            printf("%p: size=%lu. %s (%s) %s\n", cmd->address, cmd->size, cmd->type, cmd->param, cmd->date_and_time);
         }
     }
 }
@@ -108,7 +108,7 @@ void print_sharedmem_key_memlist(mem_list ml, char* key) {
         command *cmd = read_from_memlist(ml, i);
         if (type == NULL || strcmp(type, cmd->type) == 0) {
             if (strcmp(cmd->param,key)==0)
-                printf("%p: size=%lu. %s %s %s\n", cmd->address, cmd->size, cmd->type, cmd->param, cmd->date_and_time);
+                printf("%p: size=%lu. %s (key:%s) %s\n", cmd->address, cmd->size, cmd->type, cmd->param, cmd->date_and_time);
         }
     }
 }
