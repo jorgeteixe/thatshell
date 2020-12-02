@@ -386,7 +386,7 @@ int mem_dealloc_mmap(char **tokens, int ntokens, mem_list ml) {
     } else if (ntokens == 1) {
         pos = pos_in_mem_list(ml, "mmap", tokens[0]);
         if (pos > -1 && pos < n_elements_in_memlist(ml)) {
-            printf("Deallocs:%s", tokens[0]);
+            printf("deallocated: %s\n", tokens[0]);
             unmap_from_memlist(ml, pos);
             return 1;
         }
