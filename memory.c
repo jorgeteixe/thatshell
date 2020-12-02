@@ -328,7 +328,6 @@ void * ObtenerMemoriaShmget (key_t clave, size_t tam, mem_list ml){
     char temp[40];
     int inttemp=clave;
     snprintf(temp,40,"%d",inttemp);
-    printf("%s",temp);
     insert_in_memlist(ml,p,tam,"shared",temp);
     return (p);
 }
@@ -337,6 +336,8 @@ int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml) {
     key_t k;
     size_t tam=0;
     void *p;
+    if (ntokens == 0)
+        print_memlist(ml,"shared");
     if (tokens[0]==NULL || tokens[1]==NULL)
         {/*Listar Direcciones de Memoria Shared */ return -1;}
         k=(key_t) atoi(tokens[0]);
@@ -345,12 +346,11 @@ int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml) {
     if ((p=ObtenerMemoriaShmget(k,tam,ml))==NULL)
         perror ("Cannot allocate:");
     else
-    printf ("Allocated shared memory (key %d) asigned at %p\n",k,p);
+    printf ("Allocated shared memory (cl %d) asigned at %p\n",k,p);
     return 1;
 }
 
 int mem_alloc_shared(char **tokens, int ntokens, mem_list ml) {
-
     if (ntokens == 0){
         print_memlist(ml,"shared");
         return 1;
