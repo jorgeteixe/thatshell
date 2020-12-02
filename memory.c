@@ -328,7 +328,6 @@ void * ObtenerMemoriaShmget (key_t clave, size_t tam, mem_list ml){
     char temp[40];
     int inttemp=clave;
     snprintf(temp,40,"%d",inttemp);
-    printf("%s",temp);
     insert_in_memlist(ml,p,tam,"shared",temp);
     return (p);
 }
@@ -337,6 +336,8 @@ int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml) {
     key_t k;
     size_t tam=0;
     void *p;
+    if (ntokens == 0)
+        print_memlist(ml,"shared");
     if (tokens[0]==NULL || tokens[1]==NULL)
         {/*Listar Direcciones de Memoria Shared */ return -1;}
         k=(key_t) atoi(tokens[0]);
@@ -345,12 +346,11 @@ int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml) {
     if ((p=ObtenerMemoriaShmget(k,tam,ml))==NULL)
         perror ("Cannot allocate:");
     else
-    printf ("Allocated shared memory (key %d) asigned at %p\n",k,p);
+    printf ("Allocated shared memory (cl %d) asigned at %p\n",k,p);
     return 1;
 }
 
 int mem_alloc_shared(char **tokens, int ntokens, mem_list ml) {
-
     if (ntokens == 0){
         print_memlist(ml,"shared");
         return 1;
@@ -440,7 +440,20 @@ int mem_show(char **tokens, int ntokens, mem_list ml) {
 }
 
 int mem_dopmap() {
-    // TODO
-    printf("Dopmap\n");
+    FILE *fp;
+    char output[4096];
+    char pid[10];
+    sprintf(pid, "%d", getpid());
+    char cmd[100] = "/usr/bin/pmap ";
+    strcat(cmd,pid);
+    fp = popen(cmd, "r");
+    if (fp == NULL) {
+        printf("An error ocurred.\n");
+        return -1;
+    }
+    while (fgets(output, sizeof(output), fp) != NULL) {
+        printf("%s", output);
+    }
+    pclose(fp);
     return 1;
 }
