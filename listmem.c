@@ -53,6 +53,21 @@ char *dateAndTime() {
     return dateAndTime;
 };
 
+int pos_in_mem_list(mem_list historic ,char* type ,char* param){
+    for(int i=0; i<n_elements_in_memlist(historic); i++){
+        if (strcmp(historic->list[i]->type,type)==0){
+            if(strcmp(type,"malloc")==0){
+                unsigned long int tmpInt=0;
+                tmpInt=strtoul(param,NULL,10);
+                if(tmpInt==historic->list[i]->size){
+                    return i;
+                }
+            }
+           /// if (strcmp(type,""))
+        }
+    }
+    return -1;
+};
 
 void insert_in_memlist(mem_list historic, void *memoryAddress, unsigned long size, char *type, char *params) {
 
@@ -73,9 +88,11 @@ void remove_from_memlist(mem_list historic, int position) {
         printf("the list is empty, you cant remove");
     } else {
         if (position == last) {
+            free(historic->list[position]->address);
             free(historic->list[position]);
             historic->n_elem--;
         } else {
+            free(historic->list[position]->address);
             free(historic->list[position]);
             for (int i = position; i <= last; ++i) {
                 historic->list[i] = historic->list[i + 1];

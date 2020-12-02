@@ -9,6 +9,7 @@ typedef struct memory_struct * mem_list;
 typedef struct struct_command command;
 
 mem_list create_memlist();
+int pos_in_mem_list(mem_list,char*,char*);
 void remove_memlist(mem_list);
 void insert_in_memlist(mem_list, void*, unsigned long , char*, char*);
 void remove_from_memlist(mem_list, int);

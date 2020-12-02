@@ -29,7 +29,7 @@ int mem_dealloc();
 
 int mem_dealloc_addr(char *address);
 
-int mem_dealloc_malloc(char **tokens, int ntokens);
+int mem_dealloc_malloc(char **tokens, int ntokens,mem_list ml);
 
 int mem_dealloc_mmap(char **tokens, int ntokens);
 
@@ -66,7 +66,7 @@ int memory_cmd(char **tokens, int ntokens, mem_list ml) {
                 print_memlist(ml,NULL);
             } else {
                 if (strcmp(tokens[1], "-malloc") == 0) {
-                    mem_dealloc_malloc(tokens + 2, ntokens - 2);
+                    mem_dealloc_malloc(tokens + 2, ntokens - 2,ml);
                 } else if (strcmp(tokens[1], "-mmap") == 0) {
                     mem_dealloc_mmap(tokens + 2, ntokens - 2);
                 } else if (strcmp(tokens[1], "-shared") == 0) {
@@ -333,7 +333,6 @@ void * ObtenerMemoriaShmget (key_t clave, size_t tam, mem_list ml){
     return (p);
 }
 
-
 int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml) {
     key_t k;
     size_t tam=0;
@@ -361,14 +360,20 @@ int mem_alloc_shared(char **tokens, int ntokens, mem_list ml) {
     }
 }
 
-int mem_dealloc_malloc(char **tokens, int ntokens) {
-    // TODO
-    printf("Dealloc malloc\n");
-    if (ntokens == 0) printf("No tokens received");
-    for (int i = 0; i < ntokens; ++i) {
-        printf("arg %d: %s\n", i, tokens[i]);
+int mem_dealloc_malloc(char **tokens, int ntokens, mem_list ml) {
+    int pos;
+    if (ntokens == 0){
+        print_memlist(ml,"malloc");
+        return 0;
+    }else if(ntokens==1){
+        pos=pos_in_mem_list(ml,"malloc",tokens[0]);
+        if (pos>-1 && pos<n_elements_in_memlist(ml)){
+            printf("Deallocs:%s",tokens[0]);
+            remove_from_memlist(ml,pos);
+            return 1;
+        }
     }
-    return 1;
+    return 0;
 }
 
 int mem_dealloc_mmap(char **tokens, int ntokens) {
