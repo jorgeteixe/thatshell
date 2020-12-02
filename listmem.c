@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <sys/mman.h>
 #include "listmem.h"
 
 
@@ -63,6 +64,11 @@ int pos_in_mem_list(mem_list historic ,char* type ,char* param){
                     return i;
                 }
             }
+            if(strcmp(type,"mmap")==0){
+                if(strcmp(param,historic->list[i]->param)){
+                    return i;
+                }
+            }
            /// if (strcmp(type,""))
         }
     }
@@ -83,7 +89,7 @@ void insert_in_memlist(mem_list historic, void *memoryAddress, unsigned long siz
 };
 
 void remove_from_memlist(mem_list historic, int position) {
-    int last = historic->n_elem - 1;
+    int last = n_elements_in_memlist(historic) - 1;
     if (historic->n_elem == 0) {
         printf("the list is empty, you cant remove");
     } else {
@@ -100,8 +106,26 @@ void remove_from_memlist(mem_list historic, int position) {
             historic->n_elem--;
         }
     }
-
 };
+void unmap_from_memlist(mem_list historic ,int position){
+    int last = n_elements_in_memlist(historic)-1;
+    if (historic->n_elem == 0) {
+        printf("the list is empty, you cant remove");
+    } else {
+        if (position == last) {
+            munmap(historic->list[position]->address,historic->list[position]->size);
+            free(historic->list[position]);
+            historic->n_elem--;
+        } else {
+            munmap(historic->list[position]->address,historic->list[position]->size);
+            free(historic->list[position]);
+            for (int i = position; i <= last; ++i) {
+                historic->list[i] = historic->list[i + 1];
+            }
+            historic->n_elem--;
+        }
+    }
+}
 
 command *read_from_memlist(mem_list historic, int position) {
     return historic->list[position];
