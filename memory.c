@@ -434,7 +434,20 @@ int mem_show(char **tokens, int ntokens, mem_list ml) {
 }
 
 int mem_dopmap() {
-    // TODO
-    printf("Dopmap\n");
+    FILE *fp;
+    char output[4096];
+    char pid[10];
+    sprintf(pid, "%d", getpid());
+    char cmd[100] = "/usr/bin/pmap ";
+    strcat(cmd,pid);
+    fp = popen(cmd, "r");
+    if (fp == NULL) {
+        printf("An error ocurred.\n");
+        return -1;
+    }
+    while (fgets(output, sizeof(output), fp) != NULL) {
+        printf("%s", output);
+    }
+    pclose(fp);
     return 1;
 }
