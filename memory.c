@@ -29,15 +29,15 @@ int mem_dealloc();
 
 int mem_dealloc_addr(char *address);
 
-int mem_dealloc_malloc(char **tokens, int ntokens,mem_list ml);
+int mem_dealloc_malloc(char **tokens, int ntokens, mem_list ml);
 
-int mem_dealloc_mmap(char **tokens, int ntokens,mem_list ml);
+int mem_dealloc_mmap(char **tokens, int ntokens, mem_list ml);
 
 int mem_dealloc_shared(char **tokens, int ntokens);
 
 int mem_deletekey(char *key);
 
-int mem_show(char **tokens, int ntokens,mem_list ml);
+int mem_show(char **tokens, int ntokens, mem_list ml);
 
 int mem_dopmap();
 
@@ -47,7 +47,7 @@ int memory_cmd(char **tokens, int ntokens, mem_list ml) {
     } else {
         if (strcmp(tokens[0], "-allocate") == 0) {
             if (ntokens == 1) {
-                print_memlist(ml,NULL);
+                print_memlist(ml, NULL);
             } else {
                 if (strcmp(tokens[1], "-malloc") == 0) {
                     mem_alloc_malloc(tokens + 2, ntokens - 2, ml);
@@ -63,12 +63,12 @@ int memory_cmd(char **tokens, int ntokens, mem_list ml) {
             }
         } else if (strcmp(tokens[0], "-dealloc") == 0) {
             if (ntokens == 1) {
-                print_memlist(ml,NULL);
+                print_memlist(ml, NULL);
             } else {
                 if (strcmp(tokens[1], "-malloc") == 0) {
-                    mem_dealloc_malloc(tokens + 2, ntokens - 2,ml);
+                    mem_dealloc_malloc(tokens + 2, ntokens - 2, ml);
                 } else if (strcmp(tokens[1], "-mmap") == 0) {
-                    mem_dealloc_mmap(tokens + 2, ntokens - 2,ml);
+                    mem_dealloc_mmap(tokens + 2, ntokens - 2, ml);
                 } else if (strcmp(tokens[1], "-shared") == 0) {
                     mem_dealloc_shared(tokens + 2, ntokens - 2);
                 } else {
@@ -80,7 +80,7 @@ int memory_cmd(char **tokens, int ntokens, mem_list ml) {
                 printf("Error, check the arguments.\n");
             } else mem_deletekey(tokens[1]);
         } else if (strcmp(tokens[0], "-show") == 0) {
-            mem_show(tokens + 1, ntokens - 1,ml);
+            mem_show(tokens + 1, ntokens - 1, ml);
         } else if (strcmp(tokens[0], "-dopmap") == 0) {
             if (ntokens > 1) {
                 printf("Error, check the arguments.\n");
@@ -128,7 +128,7 @@ int memdump_cmd(char **tokens, int ntokens) {
 int memfill_cmd(char **tokens, int ntokens) {
     int tam = 128;
     char c = 'A';
-    if (ntokens == 0 || ntokens > 3){
+    if (ntokens == 0 || ntokens > 3) {
         printf("Error, check the arguments.");
         return -1;
     }
@@ -149,7 +149,7 @@ void recursive(int n) {
     printf("Auto array:\t\t %p\n", auto_array);
     printf("Static array:\t %p\n", stat_array);
     printf("\n");
-    if (n>0) recursive(--n);
+    if (n > 0) recursive(--n);
 }
 
 int recurse_cmd(char **tokens, int ntokens) {
@@ -158,7 +158,7 @@ int recurse_cmd(char **tokens, int ntokens) {
         return -1;
     }
     int n = strtol(tokens[0], NULL, 10);
-    if (n <=0) {
+    if (n <= 0) {
         printf("Number not valid. \n");
         return -1;
     }
@@ -167,6 +167,7 @@ int recurse_cmd(char **tokens, int ntokens) {
 }
 
 #define LEERCOMPLETO ((ssize_t)-1)
+
 ssize_t LeerFichero(char *fich, void *p, ssize_t n) {
     ssize_t nleidos, tam = n;
     int df, aux;
@@ -189,12 +190,12 @@ int readfile_cmd(char **tokens, int ntokens) {
     if (ntokens > 3 || ntokens < 2) {
         printf("Error, check the arguments.\n");
     }
-    ssize_t size = (ssize_t)-1;
-    if (ntokens == 3) size = (ssize_t)strtol(tokens[2], NULL, 10);
+    ssize_t size = (ssize_t) -1;
+    if (ntokens == 3) size = (ssize_t) strtol(tokens[2], NULL, 10);
     if (LeerFichero(tokens[0],
-                    (void *)strtol(tokens[1], NULL, 16),
-                    size)==-1) {
-        printf("%s\n",strerror(errno));
+                    (void *) strtol(tokens[1], NULL, 16),
+                    size) == -1) {
+        printf("%s\n", strerror(errno));
         return -1;
     }
     printf("%s successfully read into memory.\n", tokens[0]);
@@ -205,9 +206,9 @@ int toFileFromMem(char *file, void *p, ssize_t n, int o_flag) {
     int fd, aux;
     struct stat s;
     if (o_flag && stat(file, &s) == -1) {
-        printf("%s\n",strerror(errno));
+        printf("%s\n", strerror(errno));
         return -1;
-    } else if (stat(file, &s) != -1 && !o_flag){
+    } else if (stat(file, &s) != -1 && !o_flag) {
         printf("File exists, use overwrite mode.\n");
         return -2;
     }
@@ -229,15 +230,15 @@ int writefile_cmd(char **tokens, int ntokens) {
         return -1;
     }
     int i = 0, o_flag = 0;
-    if (strcmp(tokens[0],"-o")==0) {
+    if (strcmp(tokens[0], "-o") == 0) {
         o_flag = 1;
         i++;
     }
     if (toFileFromMem(tokens[i],
-                      (void *)strtol(tokens[i + 1], NULL, 16),
-                      (ssize_t)strtol(tokens[i + 2], NULL, 10), o_flag) == -1) {
+                      (void *) strtol(tokens[i + 1], NULL, 16),
+                      (ssize_t) strtol(tokens[i + 2], NULL, 10), o_flag) == -1) {
 
-        printf("%s\n",strerror(errno));
+        printf("%s\n", strerror(errno));
         return -1;
     }
     printf("Wrote file.\n");
@@ -306,85 +307,87 @@ int mem_alloc_mmap(char **tokens, int ntokens, mem_list ml) {
     return 1;
 }
 
-void * ObtenerMemoriaShmget (key_t clave, size_t tam, mem_list ml){
-    void * p;
-    int aux,id,flags=0777;
+void *ObtenerMemoriaShmget(key_t clave, size_t tam, mem_list ml) {
+    void *p;
+    int aux, id, flags = 0777;
     struct shmid_ds s;
     if (tam) /*si tam no es 0 la crea en modo exclusivo */
-        flags=flags | IPC_CREAT | IPC_EXCL;
-            /*if tam = 0 try to access */
-    if (clave==IPC_PRIVATE) /*no nos vale*/
-        {errno=EINVAL; return NULL;}
-    if ((id=shmget(clave, tam, flags))==-1)
+        flags = flags | IPC_CREAT | IPC_EXCL;
+    /*if tam = 0 try to access */
+    if (clave == IPC_PRIVATE) /*no nos vale*/
+    {
+        errno = EINVAL;
+        return NULL;
+    }
+    if ((id = shmget(clave, tam, flags)) == -1)
         return (NULL);
-    if ((p=shmat(id,NULL,0))==(void*) -1){
-        aux=errno; /*si se ha creado y no se puede mapear*/
+    if ((p = shmat(id, NULL, 0)) == (void *) -1) {
+        aux = errno; /*si se ha creado y no se puede mapear*/
         if (tam) /*se borra */
-            shmctl(id,IPC_RMID,NULL);
-        errno=aux;
+            shmctl(id, IPC_RMID, NULL);
+        errno = aux;
         return (NULL);
     }
-    shmctl (id,IPC_STAT,&s);
+    shmctl(id, IPC_STAT, &s);
     char temp[40];
-    int inttemp=clave;
-    snprintf(temp,40,"%d",inttemp);
-    insert_in_memlist(ml,p,tam,"shared",temp);
+    int inttemp = clave;
+    snprintf(temp, 40, "%d", inttemp);
+    insert_in_memlist(ml, p, tam, "shared", temp);
     return (p);
 }
 
 int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml) {
     key_t k;
-    size_t tam=0;
+    size_t tam = 0;
     void *p;
     if (ntokens == 0)
-        print_memlist(ml,"shared");
-    if (tokens[0]==NULL || tokens[1]==NULL)
-        {/*Listar Direcciones de Memoria Shared */ return -1;}
-        k=(key_t) atoi(tokens[0]);
-    if (tokens[1]!=NULL)
-        tam=(size_t) atoll(tokens[1]);
-    if ((p=ObtenerMemoriaShmget(k,tam,ml))==NULL)
-        perror ("Cannot allocate:");
+        print_memlist(ml, "shared");
+    if (tokens[0] == NULL || tokens[1] == NULL) {/*Listar Direcciones de Memoria Shared */ return -1; }
+    k = (key_t) atoi(tokens[0]);
+    if (tokens[1] != NULL)
+        tam = (size_t) atoll(tokens[1]);
+    if ((p = ObtenerMemoriaShmget(k, tam, ml)) == NULL)
+        perror("Cannot allocate:");
     else
-    printf ("Allocated shared memory (cl %d) asigned at %p\n",k,p);
+        printf("Allocated shared memory (cl %d) asigned at %p\n", k, p);
     return 1;
 }
 
 int mem_alloc_shared(char **tokens, int ntokens, mem_list ml) {
-    if (ntokens == 0){
-        print_memlist(ml,"shared");
+    if (ntokens == 0) {
+        print_memlist(ml, "shared");
         return 1;
-    }else{
-        print_sharedmem_key_memlist(ml,tokens[0]);
+    } else {
+        print_sharedmem_key_memlist(ml, tokens[0]);
         return 0;
     }
 }
 
 int mem_dealloc_malloc(char **tokens, int ntokens, mem_list ml) {
     int pos;
-    if (ntokens == 0){
-        print_memlist(ml,"malloc");
+    if (ntokens == 0) {
+        print_memlist(ml, "malloc");
         return 0;
-    }else if(ntokens==1){
-        pos=pos_in_mem_list(ml,"malloc",tokens[0]);
-        if (pos>-1 && pos<n_elements_in_memlist(ml)){
-            printf("deallocated: %s\n",tokens[0]);
-            remove_from_memlist(ml,pos);
+    } else if (ntokens == 1) {
+        pos = pos_in_mem_list(ml, "malloc", tokens[0]);
+        if (pos > -1 && pos < n_elements_in_memlist(ml)) {
+            printf("deallocated: %s\n", tokens[0]);
+            remove_from_memlist(ml, pos);
             return 1;
         }
     }
     return 0;
 }
 
-int mem_dealloc_mmap(char **tokens, int ntokens,mem_list ml) {
+int mem_dealloc_mmap(char **tokens, int ntokens, mem_list ml) {
     int pos;
-    if (ntokens == 0){
-        print_memlist(ml,"mmap");
-    }else if(ntokens==1){
-        pos=pos_in_mem_list(ml,"mmap",tokens[0]);
-        if (pos>-1 && pos<n_elements_in_memlist(ml)){
-            printf("Deallocs:%s",tokens[0]);
-            unmap_from_memlist(ml,pos);
+    if (ntokens == 0) {
+        print_memlist(ml, "mmap");
+    } else if (ntokens == 1) {
+        pos = pos_in_mem_list(ml, "mmap", tokens[0]);
+        if (pos > -1 && pos < n_elements_in_memlist(ml)) {
+            printf("Deallocs:%s", tokens[0]);
+            unmap_from_memlist(ml, pos);
             return 1;
         }
 
@@ -420,17 +423,17 @@ int mem_deletekey(char *key) {
 
 int mem_show(char **tokens, int ntokens, mem_list ml) {
     //TODO
-    if (ntokens==0)
+    if (ntokens == 0)
         printf("TODO");
-    if (ntokens == 1){
-        if (strcmp(tokens[0],"-malloc")==0)
-            print_memlist(ml,"malloc");
-        if (strcmp(tokens[0],"-shared")==0)
-            print_memlist(ml,"shared");
-        if (strcmp(tokens[0],"-mmap")==0)
-            print_memlist(ml,"mmap");
-        if (strcmp(tokens[0],"-all")==0)
-            print_memlist(ml,NULL);
+    if (ntokens == 1) {
+        if (strcmp(tokens[0], "-malloc") == 0)
+            print_memlist(ml, "malloc");
+        if (strcmp(tokens[0], "-shared") == 0)
+            print_memlist(ml, "shared");
+        if (strcmp(tokens[0], "-mmap") == 0)
+            print_memlist(ml, "mmap");
+        if (strcmp(tokens[0], "-all") == 0)
+            print_memlist(ml, NULL);
         return 1;
     }
     for (int i = 0; i < ntokens; ++i) {
@@ -445,7 +448,7 @@ int mem_dopmap() {
     char pid[10];
     sprintf(pid, "%d", getpid());
     char cmd[100] = "/usr/bin/pmap ";
-    strcat(cmd,pid);
+    strcat(cmd, pid);
     fp = popen(cmd, "r");
     if (fp == NULL) {
         printf("An error ocurred.\n");

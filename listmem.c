@@ -118,7 +118,7 @@ void unmap_from_memlist(mem_list historic ,int position){
         printf("the list is empty, you cant remove");
     } else {
         if (position == last) {
-            if (munmap(historic->list[position]->address,historic->list[position]->size)==0);
+            if (munmap(historic->list[position]->address,historic->list[position]->size)==0)
                 close(atoi(historic->list[position]->param));
             free(historic->list[position]);
             historic->n_elem--;
