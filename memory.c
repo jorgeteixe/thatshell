@@ -374,7 +374,7 @@ int mem_dealloc_malloc(char **tokens, int ntokens, mem_list ml) {
         pos = pos_in_mem_list(ml, "malloc", tokens[0]);
         if (pos > -1 && pos < n_elements_in_memlist(ml)) {
             printf("deallocated: %s\n", tokens[0]);
-            remove_from_memlist(ml, pos);
+            remove_from_memlist(ml, pos, 1);
             return 1;
         }
     }

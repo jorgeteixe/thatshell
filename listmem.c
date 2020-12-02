@@ -94,19 +94,21 @@ void insert_in_memlist(mem_list historic, void *memoryAddress, unsigned long siz
     }
 };
 
-void remove_from_memlist(mem_list historic, int position) {
+void remove_from_memlist(mem_list historic, int position, int malloc_flag) {
     int last = n_elements_in_memlist(historic) - 1;
     if (historic->n_elem == 0) {
         printf("the list is empty, you cant remove");
     } else {
         if (position == last) {
             free(historic->list[position]->param);
-            free(historic->list[position]->address);
+            if (malloc_flag)
+                free(historic->list[position]->address);
             free(historic->list[position]);
             historic->n_elem--;
         } else {
             free(historic->list[position]->param);
-            free(historic->list[position]->address);
+            if (malloc_flag)
+                free(historic->list[position]->address);
             free(historic->list[position]);
             for (int i = position; i <= last; ++i) {
                 historic->list[i] = historic->list[i + 1];
@@ -119,21 +121,16 @@ void remove_from_memlist(mem_list historic, int position) {
 void unmap_from_memlist(mem_list historic, int position) {
     int last = n_elements_in_memlist(historic) - 1;
     if (historic->n_elem == 0) {
-        printf("the list is empty, you cant remove");
+        printf("the list is empty, you cant remove\n");
     } else {
         if (position == last) {
             if (munmap(historic->list[position]->address, historic->list[position]->size) == 0)
-                close(atoi(historic->list[position]->param + 4));
-            free(historic->list[position]);
-            historic->n_elem--;
+                close(atoi(historic->list[position]->param + 3));
+            remove_from_memlist(historic, position, 0);
         } else {
             if (munmap(historic->list[position]->address, historic->list[position]->size) == 0)
-                close(atoi(historic->list[position]->param + 4));
-            free(historic->list[position]);
-            for (int i = position; i <= last; ++i) {
-                historic->list[i] = historic->list[i + 1];
-            }
-            historic->n_elem--;
+                close(atoi(historic->list[position]->param + 3));
+            remove_from_memlist(historic, position, 0);
         }
     }
 }

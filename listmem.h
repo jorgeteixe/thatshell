@@ -12,7 +12,7 @@ mem_list create_memlist();
 int pos_in_mem_list(mem_list,char*,char*);
 void remove_memlist(mem_list);
 void insert_in_memlist(mem_list, void*, unsigned long , char*, char*);
-void remove_from_memlist(mem_list, int);
+void remove_from_memlist(mem_list, int, int);
 void unmap_from_memlist(mem_list ,int);
 command* read_from_memlist(mem_list, int);
 int n_elements_in_memlist(mem_list);
