@@ -37,11 +37,15 @@ int mem_deletekey(char *key);
 
 int mem_show(char **tokens, int ntokens, mem_list ml);
 
+int mem_show_vars();
+
+int mem_show_funcs();
+
 int mem_dopmap();
 
 int memory_cmd(char **tokens, int ntokens, mem_list ml) {
     if (ntokens == 0) {
-        printf("only memory\n");
+        print_memlist(ml, NULL);
     } else {
         if (strcmp(tokens[0], "-allocate") == 0) {
             if (ntokens == 1) {
@@ -79,6 +83,10 @@ int memory_cmd(char **tokens, int ntokens, mem_list ml) {
             } else mem_deletekey(tokens[1]);
         } else if (strcmp(tokens[0], "-show") == 0) {
             mem_show(tokens + 1, ntokens - 1, ml);
+        } else if (strcmp(tokens[0], "-show-vars") == 0) {
+            mem_show_vars();
+        } else if (strcmp(tokens[0], "-show-funcs") == 0) {
+            mem_show_funcs();
         } else if (strcmp(tokens[0], "-dopmap") == 0) {
             if (ntokens > 1) {
                 printf("Error, check the arguments.\n");
@@ -420,9 +428,30 @@ int mem_deletekey(char *key) {
 }
 
 int mem_show(char **tokens, int ntokens, mem_list ml) {
-    //TODO
-    if (ntokens == 0)
-        printf("TODO");
+    int a, b, c;
+    if (ntokens > 1) {
+        printf("Error, check the arguments.\n");
+        return -1;
+    }
+    if (ntokens == 0) {
+        printf("Functions: \n");
+        printf("\tmem_show():         %p \n", &mem_show);
+        printf("\tmem_dealloc_mmap(): %p \n", &mem_dealloc_mmap);
+        printf("\tLeerFichero():      %p \n", &LeerFichero);
+        printf("Global vars: \n");
+        printf("\terrno:   %p \n", &errno);
+        printf("\tstdin:   %p \n", &stdin);
+        printf("\tstdout:  %p \n", &stdin);
+        printf("Local vars: \n");
+        printf("\ta:   %p \n", &a);
+        printf("\tb:   %p \n", &b);
+        printf("\tc:   %p \n", &c);
+        printf("Parameters: \n");
+        printf("\ttokens:  %p \n", &tokens);
+        printf("\tntokens: %p \n", &ntokens);
+        printf("\tml:      %p \n", &ml);
+        return 1;
+    }
     if (ntokens == 1) {
         if (strcmp(tokens[0], "-malloc") == 0)
             print_memlist(ml, "malloc");
@@ -434,10 +463,33 @@ int mem_show(char **tokens, int ntokens, mem_list ml) {
             print_memlist(ml, NULL);
         return 1;
     }
-    for (int i = 0; i < ntokens; ++i) {
-        printf("arg %d: %s\n", i, tokens[i]);
-    }
-    return 1;
+    return -1;
+}
+
+
+int mem_show_vars() {
+    int a, b, c;
+    printf("Global vars: \n");
+    printf("\terrno:   %p \n", &errno);
+    printf("\tstdin:   %p \n", &stdin);
+    printf("\tstdout:  %p \n", &stdin);
+    printf("Local vars: \n");
+    printf("\ta: %p \n", &a);
+    printf("\tb: %p \n", &b);
+    printf("\tc: %p \n", &c);
+    return 0;
+}
+
+int mem_show_funcs() {
+    printf("thatshell functions: \n");
+    printf("\tmem_show():         %p \n", &mem_show);
+    printf("\tmem_dealloc_mmap(): %p \n", &mem_dealloc_mmap);
+    printf("\tLeerFichero():      %p \n", &LeerFichero);
+    printf("libc functions: \n");
+    printf("\tprintf(): %p \n", &printf);
+    printf("\tgetpid(): %p \n", &getpid);
+    printf("\tatoi():   %p \n", &atoi);
+    return 0;
 }
 
 int mem_dopmap() {

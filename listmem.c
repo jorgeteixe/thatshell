@@ -87,7 +87,6 @@ void insert_in_memlist(mem_list historic, void *memoryAddress, unsigned long siz
         historic->list[historic->n_elem]->address = memoryAddress;
         historic->list[historic->n_elem]->size = size;
         historic->list[historic->n_elem]->date_and_time = now;
-        free(now);
         historic->list[historic->n_elem]->type = type;
         historic->list[historic->n_elem]->param = strdup(params);
         historic->n_elem++;
@@ -103,12 +102,14 @@ void remove_from_memlist(mem_list historic, int position, int malloc_flag) {
             free(historic->list[position]->param);
             if (malloc_flag)
                 free(historic->list[position]->address);
+            free(historic->list[position]->date_and_time);
             free(historic->list[position]);
             historic->n_elem--;
         } else {
             free(historic->list[position]->param);
             if (malloc_flag)
                 free(historic->list[position]->address);
+            free(historic->list[position]->date_and_time);
             free(historic->list[position]);
             for (int i = position; i <= last; ++i) {
                 historic->list[i] = historic->list[i + 1];
