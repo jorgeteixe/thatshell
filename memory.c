@@ -152,8 +152,8 @@ void recursive(int n) {
     char auto_array[4096];
     static char stat_array[4096];
     printf("Parameter %2d:\t %p\n", n, &n);
-    printf("Auto array:\t\t %p\n", auto_array);
-    printf("Static array:\t %p\n", stat_array);
+    printf("Auto array:   \t %p\n", auto_array);
+    printf("Static array: \t %p\n", stat_array);
     printf("\n");
     if (n > 0) recursive(--n);
 }
@@ -228,6 +228,7 @@ int toFileFromMem(char *file, void *p, ssize_t n, int o_flag) {
         return -1;
     }
     close(fd);
+    printf("Wrote file.\n");
     return 1;
 }
 
@@ -244,11 +245,9 @@ int writefile_cmd(char **tokens, int ntokens) {
     if (toFileFromMem(tokens[i],
                       (void *) strtol(tokens[i + 1], NULL, 16),
                       (ssize_t) strtol(tokens[i + 2], NULL, 10), o_flag) == -1) {
-
         printf("%s\n", strerror(errno));
         return -1;
     }
-    printf("Wrote file.\n");
     return 1;
 }
 
