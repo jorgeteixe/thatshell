@@ -464,7 +464,7 @@ int mem_show(char **tokens, int ntokens, mem_list ml) {
         printf("\ta:   %p \n", &a);
         printf("\tb:   %p \n", &b);
         printf("\tc:   %p \n", &c);
-        printf("Parameters: \n");
+        printf("Parameters (not needed): \n");
         printf("\ttokens:  %p \n", &tokens);
         printf("\tntokens: %p \n", &ntokens);
         printf("\tml:      %p \n", &ml);
