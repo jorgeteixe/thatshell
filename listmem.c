@@ -70,11 +70,15 @@ int pos_in_mem_list(mem_list historic, char *type, char *param) {
                 }
             }
             if (strcmp(type, "mmap") == 0) {
-                if (strcmp(param, historic->list[i]->param)) {
+                if (strcmp(param, historic->list[i]->param + 7) == 0) {
                     return i;
                 }
             }
-            /// if (strcmp(type,""))
+            if (strcmp(type, "shared") == 0) {
+                if (strtoul(param, NULL, 10) == strtoul(historic->list[i]->param + 3, NULL, 10)) {
+                    return i;
+                }
+            }
         }
     }
     return -1;
@@ -119,18 +123,20 @@ void remove_from_memlist(mem_list historic, int position, int malloc_flag) {
     }
 };
 
-void unmap_from_memlist(mem_list historic, int position) {
+void unmap_from_memlist(mem_list historic, int position, int file_flag) {
     int last = n_elements_in_memlist(historic) - 1;
     if (historic->n_elem == 0) {
         printf("the list is empty, you cant remove\n");
     } else {
         if (position == last) {
             if (munmap(historic->list[position]->address, historic->list[position]->size) == 0)
-                close(atoi(historic->list[position]->param + 3));
+                if (file_flag)
+                    close(atoi(historic->list[position]->param + 3));
             remove_from_memlist(historic, position, 0);
         } else {
             if (munmap(historic->list[position]->address, historic->list[position]->size) == 0)
-                close(atoi(historic->list[position]->param + 3));
+                if (file_flag)
+                    close(atoi(historic->list[position]->param + 3));
             remove_from_memlist(historic, position, 0);
         }
     }

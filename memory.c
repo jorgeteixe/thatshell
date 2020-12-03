@@ -284,7 +284,7 @@ void *mmapfich(char *fichero, int protection, mem_list ml) {
         return NULL;
     }
     char *params = malloc(20);
-    sprintf(params, "fd:%d", df);
+    sprintf(params, "fd:%d - %s", df, fichero);
     insert_in_memlist(ml, p, s.st_size, "mmap", params);
     free(params);
     return p;
@@ -349,8 +349,8 @@ int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml) {
     void *p;
     if (ntokens == 0)
         print_memlist(ml, "shared");
-    if (tokens[0] == NULL || tokens[1] == NULL) {
-        /*Listar Direcciones de Memoria Shared */
+    if (ntokens == 1 || ntokens > 2) {
+        printf("Error, check the arguments.\n");
         return -1;
     }
     k = (key_t) atoi(tokens[0]);
@@ -396,17 +396,18 @@ int mem_dealloc_mmap(char **tokens, int ntokens, mem_list ml) {
     } else if (ntokens == 1) {
         pos = pos_in_mem_list(ml, "mmap", tokens[0]);
         if (pos > -1 && pos < n_elements_in_memlist(ml)) {
+            unmap_from_memlist(ml, pos, 1);
             printf("deallocated: %s\n", tokens[0]);
-            unmap_from_memlist(ml, pos);
             return 1;
+        } else {
+            printf("Error, file not found.\n");
+            return -1;
         }
-
     }
     return 1;
 }
 
 int mem_dealloc_shared(char **tokens, int ntokens, mem_list ml) {
-    // Jorge in progress
     if (ntokens > 1) {
         printf("Error, check the arguments.\n");
         return -1;
@@ -415,8 +416,15 @@ int mem_dealloc_shared(char **tokens, int ntokens, mem_list ml) {
         print_memlist(ml, "shared");
         return 1;
     }
-
-    return 1;
+    int pos = pos_in_mem_list(ml, "shared", tokens[0]);
+    if (pos > -1 && pos < n_elements_in_memlist(ml)) {
+        unmap_from_memlist(ml, pos, 0);
+        printf("deallocated: %s\n", tokens[0]);
+        return 1;
+    } else {
+        printf("Error, key not found.\n");
+        return -1;
+    }
 }
 
 int mem_dealloc_addr(char *address) {
