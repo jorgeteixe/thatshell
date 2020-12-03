@@ -25,7 +25,7 @@ int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml);
 
 int mem_alloc_shared(char **tokens, int ntokens, mem_list ml);
 
-int mem_dealloc_addr(char *address);
+int mem_dealloc_addr(char *address, mem_list ml);
 
 int mem_dealloc_malloc(char **tokens, int ntokens, mem_list ml);
 
@@ -74,7 +74,7 @@ int memory_cmd(char **tokens, int ntokens, mem_list ml) {
                 } else if (strcmp(tokens[1], "-shared") == 0) {
                     mem_dealloc_shared(tokens + 2, ntokens - 2, ml);
                 } else {
-                    mem_dealloc_addr(tokens[1]);
+                    mem_dealloc_addr(tokens[1], ml);
                 }
             }
         } else if (strcmp(tokens[0], "-deletekey") == 0) {
@@ -364,12 +364,11 @@ int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml) {
 }
 
 int mem_alloc_shared(char **tokens, int ntokens, mem_list ml) {
-    // jorge in progress
     if (ntokens == 0) {
         print_memlist(ml, "shared");
         return 1;
     } else {
-        print_sharedmem_key_memlist(ml, tokens[0]);
+
         return 0;
     }
 }
@@ -428,10 +427,16 @@ int mem_dealloc_shared(char **tokens, int ntokens, mem_list ml) {
     }
 }
 
-int mem_dealloc_addr(char *address) {
-    // TODO
-    printf("Addres to dealloc: %s\n", address);
-    return 1;
+int mem_dealloc_addr(char *address, mem_list ml) {
+    int pos = findAddr(ml, (void*)strtol(address, NULL, 16));
+    if (pos > -1 && pos < n_elements_in_memlist(ml)) {
+        deallocAddr(ml, pos);
+        printf("deallocated: %s\n", address);
+        return 1;
+    } else {
+        printf("Error, address not found.\n");
+        return -1;
+    }
 }
 
 int mem_deletekey(char *key) {

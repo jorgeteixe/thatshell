@@ -19,4 +19,6 @@ int n_elements_in_memlist(mem_list);
 void print_memlist(mem_list, char*);
 void print_sharedmem_key_memlist(mem_list,char*);
 void detachShared(mem_list ,int);
+void deallocAddr(mem_list ,int);
+int findAddr(mem_list, void*);
 

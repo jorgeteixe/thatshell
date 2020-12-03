@@ -38,12 +38,10 @@ mem_list create_memlist() {
 };
 
 void remove_memlist(mem_list historic) {
-    for (int i = 0; i < historic->n_elem; i++) {
-        if (historic->list[i] != NULL) {
-            free(historic->list[i]->param);
-            // TODO DEALLOC EVERY ADDRESS BEFORE THIS
-            //free(historic->list[i]->address);
-            free(historic->list[i]);
+    int size = historic->n_elem;
+    for (int i = 0; i < size; i++) {
+        if (historic->list[0] != NULL) {
+            deallocAddr(historic, findAddr(historic, historic->list[0]->address));
         }
     }
     free(historic->list);
@@ -64,8 +62,7 @@ int pos_in_mem_list(mem_list historic, char *type, char *param) {
     for (int i = 0; i < n_elements_in_memlist(historic); i++) {
         if (strcmp(historic->list[i]->type, type) == 0) {
             if (strcmp(type, "malloc") == 0) {
-                unsigned long int tmpInt = 0;
-                tmpInt = strtoul(param, NULL, 10);
+                unsigned long int tmpInt = strtoul(param, NULL, 10);
                 if (tmpInt == historic->list[i]->size) {
                     return i;
                 }
@@ -125,20 +122,14 @@ void remove_from_memlist(mem_list historic, int position, int malloc_flag) {
 };
 
 void unmap_from_memlist(mem_list historic, int position) {
-    int last = n_elements_in_memlist(historic) - 1;
     if (historic->n_elem == 0) {
         printf("the list is empty, you cant remove\n");
     } else {
-        if (position == last) {
-            if (munmap(historic->list[position]->address, historic->list[position]->size) == 0)
-                close(atoi(historic->list[position]->param + 3));
-            remove_from_memlist(historic, position, 0);
-        } else {
-            if (munmap(historic->list[position]->address, historic->list[position]->size) == 0)
-                close(atoi(historic->list[position]->param + 3));
-            remove_from_memlist(historic, position, 0);
-        }
+        if (munmap(historic->list[position]->address, historic->list[position]->size) == 0)
+            close(atoi(historic->list[position]->param + 3));
+        remove_from_memlist(historic, position, 0);
     }
+
 }
 
 command *read_from_memlist(mem_list historic, int position) {
@@ -171,17 +162,37 @@ void print_sharedmem_key_memlist(mem_list ml, char *key) {
 }
 
 void detachShared(mem_list historic, int position) {
-    int last = n_elements_in_memlist(historic) - 1;
     if (historic->n_elem == 0) {
         printf("the list is empty, you cant remove\n");
     } else {
-        if (position == last) {
-            shmdt(historic->list[position]->address);
-            remove_from_memlist(historic, position, 0);
-        } else {
-            shmdt(historic->list[position]->address);
-            remove_from_memlist(historic, position, 0);
+        shmdt(historic->list[position]->address);
+        remove_from_memlist(historic, position, 0);
+    }
+}
+
+void deallocAddr(mem_list historic, int position) {
+    if (historic->n_elem == 0) {
+        printf("the list is empty, you cant remove\n");
+    } else {
+        if (strcmp(historic->list[position]->type, "malloc") == 0) {
+            remove_from_memlist(historic, position, 1);
+            return;
+        } else if (strcmp(historic->list[position]->type, "mmap") == 0) {
+            unmap_from_memlist(historic, position);
+            return;
+        } else if (strcmp(historic->list[position]->type, "shared") == 0) {
+            printf("Not implemented yet. \n");
         }
     }
+
+}
+
+
+int findAddr(mem_list ml, void* addr) {
+    for (int i = 0; i < n_elements_in_memlist(ml); ++i) {
+        command *c = ml->list[i];
+        if (addr == c->address) return i;
+    }
+    return -1;
 }
 
