@@ -181,7 +181,7 @@ void deallocAddr(mem_list historic, int position) {
             unmap_from_memlist(historic, position);
             return;
         } else if (strcmp(historic->list[position]->type, "shared") == 0) {
-            printf("Not implemented yet. \n");
+            detachShared(historic, position);
         }
     }
 
