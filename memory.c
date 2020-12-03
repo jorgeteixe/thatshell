@@ -31,7 +31,7 @@ int mem_dealloc_malloc(char **tokens, int ntokens, mem_list ml);
 
 int mem_dealloc_mmap(char **tokens, int ntokens, mem_list ml);
 
-int mem_dealloc_shared(char **tokens, int ntokens);
+int mem_dealloc_shared(char **tokens, int ntokens, mem_list ml);
 
 int mem_deletekey(char *key);
 
@@ -72,7 +72,7 @@ int memory_cmd(char **tokens, int ntokens, mem_list ml) {
                 } else if (strcmp(tokens[1], "-mmap") == 0) {
                     mem_dealloc_mmap(tokens + 2, ntokens - 2, ml);
                 } else if (strcmp(tokens[1], "-shared") == 0) {
-                    mem_dealloc_shared(tokens + 2, ntokens - 2);
+                    mem_dealloc_shared(tokens + 2, ntokens - 2, ml);
                 } else {
                     mem_dealloc_addr(tokens[1]);
                 }
@@ -338,7 +338,7 @@ void *ObtenerMemoriaShmget(key_t clave, size_t tam, mem_list ml) {
     shmctl(id, IPC_STAT, &s);
     char temp[40];
     int inttemp = clave;
-    snprintf(temp, 40, "%d", inttemp);
+    snprintf(temp, 40, "cl:%d", inttemp);
     insert_in_memlist(ml, p, tam, "shared", temp);
     return (p);
 }
@@ -357,9 +357,9 @@ int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml) {
     if (tokens[1] != NULL)
         tam = (size_t) atoll(tokens[1]);
     if ((p = ObtenerMemoriaShmget(k, tam, ml)) == NULL)
-        perror("Cannot allocate:");
+        printf("Error, cannot allocate (maybe repeated key).\n");
     else
-        printf("Allocated shared memory (cl %d) asigned at %p\n", k, p);
+        printf("Allocated shared memory (cl:%d) asigned at %p\n", k, p);
     return 1;
 }
 
@@ -405,13 +405,17 @@ int mem_dealloc_mmap(char **tokens, int ntokens, mem_list ml) {
     return 1;
 }
 
-int mem_dealloc_shared(char **tokens, int ntokens) {
-    // TODO
-    printf("Dealloc shared\n");
-    if (ntokens == 0) printf("No tokens received");
-    for (int i = 0; i < ntokens; ++i) {
-        printf("arg %d: %s\n", i, tokens[i]);
+int mem_dealloc_shared(char **tokens, int ntokens, mem_list ml) {
+    // Jorge in progress
+    if (ntokens > 1) {
+        printf("Error, check the arguments.\n");
+        return -1;
     }
+    if (ntokens == 0) {
+        print_memlist(ml, "shared");
+        return 1;
+    }
+
     return 1;
 }
 
@@ -422,9 +426,23 @@ int mem_dealloc_addr(char *address) {
 }
 
 int mem_deletekey(char *key) {
-    // TODO
-    printf("Key to delete: %s\n", key);
-    return 1;
+    key_t clave;
+    int id;
+    if (key == NULL || (clave = (key_t) strtoul(key, NULL, 10)) == IPC_PRIVATE) {
+        printf("Error, key not valid.\n");
+        return 1;
+    }
+    if ((id = shmget(clave, 0, 0666)) == -1) {
+        printf("shmget: cannot get key\n");
+        return -1;
+    }
+    if (shmctl(id, IPC_RMID, NULL) == -1) {
+        printf("shmctl: cannot remove key\n");
+        return -1;
+    } else {
+        printf("Key removed successfully.\n");
+        return 1;
+    }
 }
 
 int mem_show(char **tokens, int ntokens, mem_list ml) {

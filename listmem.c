@@ -41,7 +41,7 @@ void remove_memlist(mem_list historic) {
         if (historic->list[i] != NULL) {
             free(historic->list[i]->param);
             // TODO DEALLOC EVERY ADDRESS BEFORE THIS
-            free(historic->list[i]->address);
+            //free(historic->list[i]->address);
             free(historic->list[i]);
         }
     }
