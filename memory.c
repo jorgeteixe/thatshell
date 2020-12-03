@@ -364,6 +364,7 @@ int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml) {
 }
 
 int mem_alloc_shared(char **tokens, int ntokens, mem_list ml) {
+    // jorge in progress
     if (ntokens == 0) {
         print_memlist(ml, "shared");
         return 1;
@@ -396,7 +397,7 @@ int mem_dealloc_mmap(char **tokens, int ntokens, mem_list ml) {
     } else if (ntokens == 1) {
         pos = pos_in_mem_list(ml, "mmap", tokens[0]);
         if (pos > -1 && pos < n_elements_in_memlist(ml)) {
-            unmap_from_memlist(ml, pos, 1);
+            unmap_from_memlist(ml, pos);
             printf("deallocated: %s\n", tokens[0]);
             return 1;
         } else {
@@ -418,7 +419,7 @@ int mem_dealloc_shared(char **tokens, int ntokens, mem_list ml) {
     }
     int pos = pos_in_mem_list(ml, "shared", tokens[0]);
     if (pos > -1 && pos < n_elements_in_memlist(ml)) {
-        unmap_from_memlist(ml, pos, 0);
+        detachShared(ml, pos);
         printf("deallocated: %s\n", tokens[0]);
         return 1;
     } else {

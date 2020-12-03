@@ -10,6 +10,7 @@
 #include <sys/mman.h>
 #include "listmem.h"
 #include <unistd.h>
+#include <sys/shm.h>
 
 
 struct struct_command {
@@ -123,20 +124,18 @@ void remove_from_memlist(mem_list historic, int position, int malloc_flag) {
     }
 };
 
-void unmap_from_memlist(mem_list historic, int position, int file_flag) {
+void unmap_from_memlist(mem_list historic, int position) {
     int last = n_elements_in_memlist(historic) - 1;
     if (historic->n_elem == 0) {
         printf("the list is empty, you cant remove\n");
     } else {
         if (position == last) {
             if (munmap(historic->list[position]->address, historic->list[position]->size) == 0)
-                if (file_flag)
-                    close(atoi(historic->list[position]->param + 3));
+                close(atoi(historic->list[position]->param + 3));
             remove_from_memlist(historic, position, 0);
         } else {
             if (munmap(historic->list[position]->address, historic->list[position]->size) == 0)
-                if (file_flag)
-                    close(atoi(historic->list[position]->param + 3));
+                close(atoi(historic->list[position]->param + 3));
             remove_from_memlist(historic, position, 0);
         }
     }
@@ -167,6 +166,21 @@ void print_sharedmem_key_memlist(mem_list ml, char *key) {
             if (strcmp(cmd->param, key) == 0)
                 printf("%p: size=%lu. %s (key:%s) %s\n", cmd->address, cmd->size, cmd->type, cmd->param,
                        cmd->date_and_time);
+        }
+    }
+}
+
+void detachShared(mem_list historic, int position) {
+    int last = n_elements_in_memlist(historic) - 1;
+    if (historic->n_elem == 0) {
+        printf("the list is empty, you cant remove\n");
+    } else {
+        if (position == last) {
+            shmdt(historic->list[position]->address);
+            remove_from_memlist(historic, position, 0);
+        } else {
+            shmdt(historic->list[position]->address);
+            remove_from_memlist(historic, position, 0);
         }
     }
 }
