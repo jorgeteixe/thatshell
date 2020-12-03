@@ -368,7 +368,7 @@ int mem_alloc_shared(char **tokens, int ntokens, mem_list ml) {
         print_memlist(ml, "shared");
         return 1;
     } else {
-
+        // TODO only this left, map again shared memory.
         return 0;
     }
 }
