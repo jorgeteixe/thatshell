@@ -160,6 +160,16 @@ void print_sharedmem_key_memlist(mem_list ml, char *key) {
         }
     }
 }
+int get_size_of_key(mem_list ml,char*key){
+    char type[] = "shared";
+    for (int i = 0; i < n_elements_in_memlist(ml); ++i) {
+        if (strcmp(type, ml->list[i]->type) == 0){
+            if (strcmp(ml->list[i]->param, key) == 0)
+                return ml->list[i]->size;
+        }
+    }
+    return -1;
+}
 
 void detachShared(mem_list historic, int position) {
     if (historic->n_elem == 0) {
