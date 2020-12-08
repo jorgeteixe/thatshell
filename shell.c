@@ -15,6 +15,8 @@
 #include "create.h"
 #include "deleteimpl.h"
 #include "listimpl.h"
+#include "memory.h"
+#include "listmem.h"
 
 /** COMMAND CONSTANTS */
 
@@ -32,9 +34,15 @@
 #define CREATE 11
 #define DELETE 12
 #define LIST 13
+#define MEMORY 14
+#define MEMDUMP 15
+#define MEMFILL 16
+#define RECURSE 17
+#define READFILE 18
+#define WRITEFILE 19
 
 
-void rerun(historic h);
+void rerun(historic h, mem_list ml);
 
 /**
  * Function: prompt
@@ -270,7 +278,7 @@ int authors_cmd(char **args, int nargs) {
  *
  * returns: returns 0 when correct, -1 when error
  */
-int historic_cmd(char **args, int nargs, historic h) {
+int historic_cmd(char **args, int nargs, historic h, mem_list ml) {
 
     int n_elem = n_elements_in_historic(h);
 
@@ -296,14 +304,14 @@ int historic_cmd(char **args, int nargs, historic h) {
             if (args[0][0] == '-' && args[0][1] == 'r') {
                 if (strlen(args[0]) == 3 && args[0][2] == '0') {
                     insert_in_historic(h, read_from_historic(h, 0));
-                    rerun(h);
+                    rerun(h, ml);
                 } else {
                     int n = atoi(args[0] + 2);
                     if (n == 0) {
                         printf("%s\n", "Arguments are wrong, check it out.");
                     } else {
                         insert_in_historic(h, read_from_historic(h, n));
-                        rerun(h);
+                        rerun(h, ml);
                     }
                 }
                 return 0;
@@ -345,10 +353,11 @@ int historic_cmd(char **args, int nargs, historic h) {
  * **tokens: user input tokenized
  * ntokens: number of elements in tokens
  * historic: address to history
+ * ml: address to mem_list
  *
  * returns: int 1 when continue, 0 when exit
  */
-int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens, historic h) {
+int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens, historic h, mem_list ml) {
 
     int cmdCounter;
     for (cmdCounter = 0; cmdCounter < N_COMMANDS; ++cmdCounter) {
@@ -385,7 +394,7 @@ int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens, histor
             time_cmd(ntokens - 1);
             break;
         case HISTORIC:
-            historic_cmd(tokens + 1, ntokens - 1, h);
+            historic_cmd(tokens + 1, ntokens - 1, h, ml);
             break;
         case CREATE:
             create_cmd(tokens + 1, ntokens - 1);
@@ -395,6 +404,24 @@ int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens, histor
             break;
         case LIST:
             list_cmd(tokens + 1, ntokens - 1);
+            break;
+        case MEMORY:
+            memory_cmd(tokens + 1, ntokens - 1, ml);
+            break;
+        case MEMDUMP:
+            memdump_cmd(tokens + 1, ntokens - 1);
+            break;
+        case MEMFILL:
+            memfill_cmd(tokens + 1, ntokens - 1);
+            break;
+        case RECURSE:
+            recurse_cmd(tokens + 1, ntokens - 1);
+            break;
+        case READFILE:
+            readfile_cmd(tokens + 1, ntokens - 1);
+            break;
+        case WRITEFILE:
+            writefile_cmd(tokens + 1, ntokens - 1);
             break;
         default:
             printf("Unrecognised command... Try again.\n");
@@ -431,11 +458,17 @@ char **load_cmds(int N_COMMANDS) {
     myCommands[CREATE] = "create";
     myCommands[DELETE] = "delete";
     myCommands[LIST] = "list";
+    myCommands[MEMORY] = "memory";
+    myCommands[MEMDUMP] = "memdump";
+    myCommands[MEMFILL] = "memfill";
+    myCommands[RECURSE] = "recurse";
+    myCommands[READFILE] = "readfile";
+    myCommands[WRITEFILE] = "writefile";
 
     return myCommands;
 }
 
-void rerun(historic h) {
+void rerun(historic h, mem_list ml) {
     int n_cms = 14;
     char **cms = load_cmds(n_cms);
 
@@ -445,7 +478,7 @@ void rerun(historic h) {
     /** Tokenizes user input */
     char *tokens[50];
     int ntokens = TrocearCadena(cmdCopy, tokens);
-    router(cms, n_cms, tokens, ntokens, h);
+    router(cms, n_cms, tokens, ntokens, h, ml);
     free(cmdCopy);
     free(cms);
 }
@@ -457,10 +490,11 @@ int main() {
 
     char *inCopy;
 
-    int n_cms = 14;
+    int n_cms = 20;
     char **cms = load_cmds(n_cms);
 
     historic h = create_historic();
+    mem_list ml = create_memlist();
 
     while (status) {
         /** Prints shell prompt */
@@ -476,7 +510,7 @@ int main() {
             /** Tokenizes user input */
             char *tokens[50];
             int ntokens = TrocearCadena(inStr, tokens);
-            status = router(cms, n_cms, tokens, ntokens, h);
+            status = router(cms, n_cms, tokens, ntokens, h, ml);
 
             /** If the command is different to HISTORIC, save it in historic and frees copy */
             if (strcmp(tokens[0], cms[HISTORIC]) != 0) {
@@ -489,6 +523,7 @@ int main() {
 
     /** Final operations */
     remove_historic(h);
+    remove_memlist(ml);
     free(cms);
     free(inStr);
     return 1;
