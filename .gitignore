@@ -1,8 +1,12 @@
+
 # Personal preference to remove full .idea folder (jorgeteixe)
 .idea/
 
 # Created by https://www.toptal.com/developers/gitignore/api/c,clion
 # Edit at https://www.toptal.com/developers/gitignore?templates=c,clion
+
+#txt
+*.txt
 
 ### C ###
 # Prerequisites
