@@ -338,8 +338,8 @@ void *ObtenerMemoriaShmget(key_t clave, size_t tam, mem_list ml) {
     char temp[40];
     int inttemp = clave;
     snprintf(temp, 40, "cl:%d", inttemp);
-    if (tam ==0){
-        tam=get_size_of_key(ml,temp);
+    if (tam == 0) {
+        tam = get_size_of_key(ml, temp);
     }
     insert_in_memlist(ml, p, tam, "shared", temp);
     return (p);
@@ -349,10 +349,10 @@ int mem_alloc_createshared(char **tokens, int ntokens, mem_list ml) {
     key_t k;
     size_t tam = 0;
     void *p;
-    if (ntokens == 0){
+    if (ntokens == 0) {
         print_memlist(ml, "shared");
         return 0;
-        }
+    }
     if (ntokens == 1 || ntokens > 2) {
         printf("Error, check the arguments.\n");
         return -1;
@@ -375,10 +375,10 @@ int mem_alloc_shared(char **tokens, int ntokens, mem_list ml) {
         return 0;
     } else {
         k = (key_t) atoi(tokens[0]);
-        if ((p = ObtenerMemoriaShmget(k, 0, ml)) == NULL){
+        if ((p = ObtenerMemoriaShmget(k, 0, ml)) == NULL) {
             printf("Error, cannot allocate (maybe repeated key).\n");
             return -1;
-        }else{
+        } else {
             printf("Allocated shared memory (cl:%d) asigned at %p\n", k, p);
             return 1;
         }
@@ -440,7 +440,7 @@ int mem_dealloc_shared(char **tokens, int ntokens, mem_list ml) {
 }
 
 int mem_dealloc_addr(char *address, mem_list ml) {
-    int pos = findAddr(ml, (void*)strtol(address, NULL, 16));
+    int pos = findAddr(ml, (void *) strtol(address, NULL, 16));
     if (pos > -1 && pos < n_elements_in_memlist(ml)) {
         deallocAddr(ml, pos);
         printf("deallocated: %s\n", address);

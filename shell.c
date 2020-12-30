@@ -17,6 +17,9 @@
 #include "listimpl.h"
 #include "memory.h"
 #include "listmem.h"
+#include "proccess.h"
+#include "plistimpl.h"
+
 
 /** COMMAND CONSTANTS */
 
@@ -40,9 +43,22 @@
 #define RECURSE 17
 #define READFILE 18
 #define WRITEFILE 19
+#define GETPRIORITY 20
+#define SETPRIORITY 21
+#define GETUID 22
+#define SETUID 23
+#define FORK 24
+#define EXECUTE 25
+#define FOREGROUND 26
+#define BACKGROUND 27
+#define RUNAS 28
+#define EXECUTEAS 29
+#define LISTPROCS 30
+#define PROC 31
+#define DELETEPROCS 32
 
 
-void rerun(historic h, mem_list ml);
+void rerun(historic h, mem_list ml, plist pl);
 
 /**
  * Function: prompt
@@ -278,7 +294,7 @@ int authors_cmd(char **args, int nargs) {
  *
  * returns: returns 0 when correct, -1 when error
  */
-int historic_cmd(char **args, int nargs, historic h, mem_list ml) {
+int historic_cmd(char **args, int nargs, historic h, mem_list ml, plist pl) {
 
     int n_elem = n_elements_in_historic(h);
 
@@ -304,14 +320,14 @@ int historic_cmd(char **args, int nargs, historic h, mem_list ml) {
             if (args[0][0] == '-' && args[0][1] == 'r') {
                 if (strlen(args[0]) == 3 && args[0][2] == '0') {
                     insert_in_historic(h, read_from_historic(h, 0));
-                    rerun(h, ml);
+                    rerun(h, ml, pl);
                 } else {
                     int n = atoi(args[0] + 2);
                     if (n == 0) {
                         printf("%s\n", "Arguments are wrong, check it out.");
                     } else {
                         insert_in_historic(h, read_from_historic(h, n));
-                        rerun(h, ml);
+                        rerun(h, ml, pl);
                     }
                 }
                 return 0;
@@ -357,7 +373,7 @@ int historic_cmd(char **args, int nargs, historic h, mem_list ml) {
  *
  * returns: int 1 when continue, 0 when exit
  */
-int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens, historic h, mem_list ml) {
+int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens, historic h, mem_list ml, plist pl) {
 
     int cmdCounter;
     for (cmdCounter = 0; cmdCounter < N_COMMANDS; ++cmdCounter) {
@@ -394,7 +410,7 @@ int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens, histor
             time_cmd(ntokens - 1);
             break;
         case HISTORIC:
-            historic_cmd(tokens + 1, ntokens - 1, h, ml);
+            historic_cmd(tokens + 1, ntokens - 1, h, ml, pl);
             break;
         case CREATE:
             create_cmd(tokens + 1, ntokens - 1);
@@ -422,6 +438,21 @@ int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens, histor
             break;
         case WRITEFILE:
             writefile_cmd(tokens + 1, ntokens - 1);
+            break;
+        case GETPRIORITY:
+        case SETPRIORITY:
+        case GETUID:
+        case SETUID:
+        case FORK:
+        case EXECUTE:
+        case FOREGROUND:
+        case BACKGROUND:
+        case RUNAS:
+        case EXECUTEAS:
+        case LISTPROCS:
+        case PROC:
+        case DELETEPROCS:
+            proccess_router(tokens + 1, ntokens - 1, cmdCounter, pl);
             break;
         default:
             printf("Unrecognised command... Try again.\n");
@@ -464,11 +495,24 @@ char **load_cmds(int N_COMMANDS) {
     myCommands[RECURSE] = "recurse";
     myCommands[READFILE] = "readfile";
     myCommands[WRITEFILE] = "writefile";
+    myCommands[GETPRIORITY] = "getpriority";
+    myCommands[SETPRIORITY] = "setpriority";
+    myCommands[GETUID] = "getuid";
+    myCommands[SETUID] = "setuid";
+    myCommands[FORK] = "fork";
+    myCommands[EXECUTE] = "execute";
+    myCommands[FOREGROUND] = "foreground";
+    myCommands[BACKGROUND] = "background";
+    myCommands[RUNAS] = "run-as";
+    myCommands[EXECUTEAS] = "execute-as";
+    myCommands[LISTPROCS] = "listprocs";
+    myCommands[PROC] = "proc";
+    myCommands[DELETEPROCS] = "deleteprocs";
 
     return myCommands;
 }
 
-void rerun(historic h, mem_list ml) {
+void rerun(historic h, mem_list ml, plist pl) {
     int n_cms = 14;
     char **cms = load_cmds(n_cms);
 
@@ -478,7 +522,7 @@ void rerun(historic h, mem_list ml) {
     /** Tokenizes user input */
     char *tokens[50];
     int ntokens = TrocearCadena(cmdCopy, tokens);
-    router(cms, n_cms, tokens, ntokens, h, ml);
+    router(cms, n_cms, tokens, ntokens, h, ml, pl);
     free(cmdCopy);
     free(cms);
 }
@@ -490,11 +534,12 @@ int main() {
 
     char *inCopy;
 
-    int n_cms = 20;
+    int n_cms = 33;
     char **cms = load_cmds(n_cms);
 
     historic h = create_historic();
     mem_list ml = create_memlist();
+    plist pl = create_plist();
 
     while (status) {
         /** Prints shell prompt */
@@ -510,7 +555,7 @@ int main() {
             /** Tokenizes user input */
             char *tokens[50];
             int ntokens = TrocearCadena(inStr, tokens);
-            status = router(cms, n_cms, tokens, ntokens, h, ml);
+            status = router(cms, n_cms, tokens, ntokens, h, ml, pl);
 
             /** If the command is different to HISTORIC, save it in historic and frees copy */
             if (strcmp(tokens[0], cms[HISTORIC]) != 0) {
