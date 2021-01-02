@@ -54,6 +54,8 @@ void proc_cmd(char **tokens, int ntokens);
 
 void deleteprocs_cmd(char *token);
 
+void exec_default(char** tokens, int ntokens);
+
 /** COPIED FUNCTIONS **/
 
 
@@ -181,6 +183,28 @@ int proccess_router(char **tokens, int ntokens, int cmd_index, pnode plist) {
     return 0;
 }
 
+void exec_default(char** tokens, int ntokens) {
+    int back_flag = 0;
+    if (tokens[ntokens - 1][0] == '&') {
+        back_flag = 1;
+        tokens[ntokens - 1] = NULL;
+        ntokens--;
+    }
+    pid_t pid = fork();
+    if (pid < 0) {
+        printf("something went wrong :(\n");
+        return;
+    }
+    if (pid > 0) {
+        if (back_flag)
+            // TODO add to list
+            sleep(1);
+        else
+            waitpid(pid, NULL, 0);
+    } else
+        execute_cmd(tokens, ntokens);
+}
+
 void deleteprocs_cmd(char *token) {
     printf("deleteprocs");
 }
@@ -268,7 +292,7 @@ void execute_cmd(char **tokens, int ntokens) {
         tokens[ntokens - 1] = NULL;
     }
     execvp(tokens[0], tokens);
-    printf("something went wrong\n");
+    printf("I'm not a magician, try a command that exists.\n");
 }
 
 void fork_cmd() {
