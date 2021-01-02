@@ -202,11 +202,27 @@ void runas_cmd(char **tokens, int ntokens) {
 }
 
 void background_cmd(char **tokens, int ntokens) {
-    printf("background");
+    pid_t pid = fork();
+    if (pid < 0) {
+        printf("something went wrong :(\n");
+        return;
+    }
+    if (pid == 0)
+        execute_cmd(tokens, ntokens);
+        // TODO add to list
+    sleep(1);
 }
 
 void foreground_cmd(char **tokens, int ntokens) {
-    printf("foreground");
+    pid_t pid = fork();
+    if (pid < 0) {
+        printf("something went wrong :(\n");
+        return;
+    }
+    if (pid > 0)
+        waitpid(pid, NULL, 0);
+    else
+        execute_cmd(tokens, ntokens);
 }
 
 void execute_cmd(char **tokens, int ntokens) {
