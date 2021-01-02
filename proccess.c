@@ -7,12 +7,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "proccess.h"
-#include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
 #include <pwd.h>
+#include <wait.h>
 
 #define GETPRIORITY 20
 #define SETPRIORITY 21
@@ -214,7 +214,13 @@ void execute_cmd(char **tokens, int ntokens) {
 }
 
 void fork_cmd() {
-    printf("fork");
+    pid_t pid = fork();
+    if (pid < 0) {
+        printf("something went wrong :(\n");
+        return;
+    }
+    if (pid > 0)
+        waitpid(pid, NULL, 0);
 }
 
 void setuid_cmd(char **tokens, int ntokens) {
