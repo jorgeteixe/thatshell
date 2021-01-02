@@ -5,7 +5,12 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "proccess.h"
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <unistd.h>
+#include <errno.h>
 
 #define GETPRIORITY 20
 #define SETPRIORITY 21
@@ -180,5 +185,15 @@ void setpriority_cmd(char **tokens, int ntokens) {
 }
 
 void getpriority_cmd(char *pid, int flag_pid) {
-    printf("get priority");
+    int i_pid, which = PRIO_PROCESS;
+    if (flag_pid)
+        i_pid = atoi(pid);
+    else
+        i_pid = getpid();
+    int prio = getpriority(which, i_pid);
+    if (prio == -1 && errno != 0) {
+        printf("something went wrong\n");
+        return;
+    }
+    printf("priority of pid=%d is=%d\n", i_pid, prio);
 }
