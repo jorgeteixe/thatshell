@@ -11,6 +11,7 @@
 #include <sys/resource.h>
 #include <unistd.h>
 #include <errno.h>
+#include <string.h>
 
 #define GETPRIORITY 20
 #define SETPRIORITY 21
@@ -181,7 +182,22 @@ void getuid_cmd() {
 }
 
 void setpriority_cmd(char **tokens, int ntokens) {
-    printf("set priority");
+    int i_pid, prio, which = PRIO_PROCESS;
+    if (ntokens == 0) {
+        getpriority_cmd(NULL, 0);
+        return;
+    } else if (ntokens == 1) {
+        i_pid = getpid();
+        prio = atoi(tokens[0]);
+    } else {
+        i_pid = atoi(tokens[0]);
+        prio = atoi(tokens[1]);
+    }
+    int err = setpriority(which, i_pid, prio);
+    if (errno == 0 && err == 0)
+        printf("priority changed pid=%d to prio=%d\n", i_pid, prio);
+    else
+        printf("priority not changed: %s\n", strerror(errno));
 }
 
 void getpriority_cmd(char *pid, int flag_pid) {
