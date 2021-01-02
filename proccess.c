@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <pwd.h>
 
 #define GETPRIORITY 20
 #define SETPRIORITY 21
@@ -52,6 +53,49 @@ void listprocs_cmd();
 void proc_cmd(char **tokens, int ntokens);
 
 void deleteprocs_cmd(char *token);
+
+/** COPIED FUNCTIONS **/
+
+
+char *NombreUsuario(uid_t uid) {
+    struct passwd *p;
+    if ((p = getpwuid(uid)) == NULL)
+        return (" ??????");
+    return p->pw_name;
+}
+
+uid_t UidUsuario(char *nombre) {
+    struct passwd *p;
+    if ((p = getpwnam(nombre)) == NULL)
+        return (uid_t) -1;
+    return p->pw_uid;
+}
+
+void Cmd_getuid(char *tr[]) {
+    uid_t real = getuid(), efec = geteuid();
+    printf("Credencial real: %d, (%s)\n", real, NombreUsuario(real));
+    printf("Credencial efectiva: %d, (%s)\n", efec, NombreUsuario(efec));
+}
+
+void Cmd_setuid(char *tr[]) {
+    uid_t uid;
+    int u;
+    if (tr[0] == NULL || (!strcmp(tr[0], "-l") && tr[1] == NULL)) {
+        Cmd_getuid(tr);
+        return;
+    }
+    if (!strcmp(tr[0], "-l")) {
+        if ((uid = UidUsuario(tr[1])) == (uid_t) -1) {
+            printf("Usuario no existente %s\n", tr[1]);
+            return;
+        }
+    } else if ((uid = (uid_t) ((u = atoi(tr[0])) < 0) ? -1 : u) == (uid_t) -1) {
+        printf("Valor no valido de la credencial %s\n", tr[0]);
+        return;
+    }
+    if (setuid(uid) == -1)
+        printf("Imposible cambiar credencial: %s\n", strerror(errno));
+}
 
 int proccess_router(char **tokens, int ntokens, int cmd_index, pnode plist) {
     switch (cmd_index) {
@@ -174,11 +218,14 @@ void fork_cmd() {
 }
 
 void setuid_cmd(char **tokens, int ntokens) {
-    printf("setuid");
+    Cmd_setuid(tokens);
 }
 
 void getuid_cmd() {
-    printf("getuid");
+    uid_t real = getuid();
+    uid_t eff = geteuid();
+    printf("real uid: %d (%s)\n", real, NombreUsuario(real));
+    printf("eff. uid: %d (%s)\n", eff, NombreUsuario(eff));
 }
 
 void setpriority_cmd(char **tokens, int ntokens) {
