@@ -34,7 +34,7 @@ void setpriority_cmd(char **tokens, int ntokens);
 
 void getuid_cmd();
 
-void setuid_cmd(char **tokens, int ntokens);
+void setuid_cmd(char **tokens);
 
 void fork_cmd();
 
@@ -121,7 +121,7 @@ int proccess_router(char **tokens, int ntokens, int cmd_index, pnode plist) {
             if (ntokens == 0 || ntokens > 2)
                 printf("Error, check the arguments.");
             else
-                setuid_cmd(tokens, ntokens);
+                setuid_cmd(tokens);
             break;
         case FORK:
             if (ntokens)
@@ -148,7 +148,7 @@ int proccess_router(char **tokens, int ntokens, int cmd_index, pnode plist) {
                 background_cmd(tokens, ntokens);
             break;
         case RUNAS:
-            if (ntokens < 3)
+            if (ntokens < 2)
                 printf("Error, check the arguments.");
             else
                 runas_cmd(tokens, ntokens);
@@ -198,7 +198,35 @@ void executeas_cmd(char **tokens, int ntokens) {
 }
 
 void runas_cmd(char **tokens, int ntokens) {
-    printf("run-as");
+    int back_flag = 0;
+    if (tokens[ntokens - 1][0] == '&') {
+        back_flag = 1;
+        tokens[ntokens - 1] = NULL;
+        ntokens--;
+    }
+    pid_t pid = fork();
+    if (pid < 0) {
+        printf("something went wrong :(\n");
+        return;
+    }
+    if (pid > 0) {
+        if (back_flag)
+            // TODO add to list
+            sleep(1);
+        else
+            waitpid(pid, NULL, 0);
+    } else {
+        uid_t uid;
+        if ((uid = UidUsuario(tokens[0])) == (uid_t) -1) {
+            printf("Usuario no existente %s\n", tokens[0]);
+            exit(-1);
+        }
+        if (setuid(uid) == -1) {
+            printf("Imposible cambiar credencial: %s\n", strerror(errno));
+            exit(-1);
+        }
+        execute_cmd(tokens + 1, ntokens - 1);
+    }
 }
 
 void background_cmd(char **tokens, int ntokens) {
@@ -209,7 +237,7 @@ void background_cmd(char **tokens, int ntokens) {
     }
     if (pid == 0)
         execute_cmd(tokens, ntokens);
-        // TODO add to list
+    // TODO add to list
     sleep(1);
 }
 
@@ -244,7 +272,7 @@ void fork_cmd() {
         waitpid(pid, NULL, 0);
 }
 
-void setuid_cmd(char **tokens, int ntokens) {
+void setuid_cmd(char **tokens) {
     Cmd_setuid(tokens);
 }
 
@@ -263,7 +291,7 @@ void setpriority_cmd(char **tokens, int ntokens) {
     } else if (ntokens == 1) {
         i_pid = getpid();
         if (tokens[0][0] == '@')
-            prio = atoi(tokens[0]+1);
+            prio = atoi(tokens[0] + 1);
         else
             prio = atoi(tokens[0]);
     } else {
