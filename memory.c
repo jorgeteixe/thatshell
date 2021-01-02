@@ -111,14 +111,19 @@ int memdump_cmd(char **tokens, int ntokens) {
     if (ntokens == 2) tam = strtol(tokens[1], NULL, 10);
     if (tam <= 0) tam = 25;
     char *ptr = (char *) strtol(tokens[0], NULL, 16);
-    int pos = 0;
+    int pos = 0, mod_flag = 0;
     for (int i = 0; i < tam * 2; i++) {
-        if (i != 0 && i % 25 == 0) {
+        if (i != 0 && i % 25 == 0 && !mod_flag) {
             printf("\n");
             pos = pos - 25;
         }
+        if (tam % 25 != 0 && pos == tam) {
+            printf("\n");
+            pos = pos - tam;
+            mod_flag = 1;
+        }
         if (i != 0 && i % 50 == 0) pos = pos + 25;
-        if (i / (float) 50 - i / 50 < 0.5) {
+        if (i / (float) 50 - i / 50 < 0.5 && !mod_flag) {
             if (isprint(ptr[pos])) {
                 printf("%3c", ptr[pos]);
             } else printf("%3c", ' ');
