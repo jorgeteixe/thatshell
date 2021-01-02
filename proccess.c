@@ -154,7 +154,7 @@ int proccess_router(char **tokens, int ntokens, int cmd_index, pnode plist) {
                 runas_cmd(tokens, ntokens);
             break;
         case EXECUTEAS:
-            if (ntokens < 3)
+            if (ntokens < 2)
                 printf("Error, check the arguments.");
             else
                 executeas_cmd(tokens, ntokens);
@@ -194,7 +194,16 @@ void listprocs_cmd() {
 }
 
 void executeas_cmd(char **tokens, int ntokens) {
-    printf("execute-as");
+    uid_t uid;
+    if ((uid = UidUsuario(tokens[0])) == (uid_t) -1) {
+        printf("Usuario no existente %s\n", tokens[0]);
+        return;
+    }
+    if (setuid(uid) == -1) {
+        printf("Imposible cambiar credencial: %s\n", strerror(errno));
+        return;
+    }
+    execute_cmd(tokens + 1, ntokens - 1);
 }
 
 void runas_cmd(char **tokens, int ntokens) {
