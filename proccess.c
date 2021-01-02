@@ -210,7 +210,12 @@ void foreground_cmd(char **tokens, int ntokens) {
 }
 
 void execute_cmd(char **tokens, int ntokens) {
-    printf("execute");
+    if (tokens[ntokens - 1][0] == '@') {
+        setpriority_cmd(tokens + ntokens - 1, 1);
+        tokens[ntokens - 1] = NULL;
+    }
+    execvp(tokens[0], tokens);
+    printf("something went wrong\n");
 }
 
 void fork_cmd() {
@@ -241,7 +246,10 @@ void setpriority_cmd(char **tokens, int ntokens) {
         return;
     } else if (ntokens == 1) {
         i_pid = getpid();
-        prio = atoi(tokens[0]);
+        if (tokens[0][0] == '@')
+            prio = atoi(tokens[0]+1);
+        else
+            prio = atoi(tokens[0]);
     } else {
         i_pid = atoi(tokens[0]);
         prio = atoi(tokens[1]);
