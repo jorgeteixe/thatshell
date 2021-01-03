@@ -99,7 +99,7 @@ void Cmd_setuid(char *tr[]) {
         printf("Imposible cambiar credencial: %s\n", strerror(errno));
 }
 
-int proccess_router(char **tokens, int ntokens, int cmd_index, pnode plist) {
+int proccess_router(char **tokens, int ntokens, int cmd_index, posPL plist) {
     switch (cmd_index) {
         case GETPRIORITY:
             if (ntokens > 1)

@@ -4,8 +4,34 @@
  *
  */
 
-typedef struct proccess_node* pnode;
-typedef struct proccess_info* pinfo;
-typedef pnode plist;
+#include<stdbool.h>
+#include<time.h>
+#include<string.h> 
+#include<stdio.h>
+
+
+typedef struct proccess_node * posPL;
+
+typedef struct pinfo{
+    int pid;
+    int priority;
+    char* caller;
+    time_t started_time;
+    int end_status;
+}pinfo;
+
+typedef struct proccess_node {
+    posPL next;
+    struct pinfo info;
+}proccess_node;
+
+
+typedef posPL plist;
 
 plist create_plist();
+bool insertItem(struct pinfo info, plist* pl);
+void deleteAtPosition(posPL pos, plist *pl);
+void deleteList(plist *pl);
+bool isEmptyList(plist pl);
+posPL last(plist pl);
+void showList(plist pl);
