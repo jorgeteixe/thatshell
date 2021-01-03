@@ -5,7 +5,14 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "proccess.h"
+#include <sys/resource.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
+#include <pwd.h>
+#include <wait.h>
 
 #define GETPRIORITY 20
 #define SETPRIORITY 21
@@ -27,7 +34,7 @@ void setpriority_cmd(char **tokens, int ntokens);
 
 void getuid_cmd();
 
-void setuid_cmd(char **tokens, int ntokens);
+void setuid_cmd(char **tokens);
 
 void fork_cmd();
 
@@ -46,6 +53,51 @@ void listprocs_cmd();
 void proc_cmd(char **tokens, int ntokens);
 
 void deleteprocs_cmd(char *token);
+
+void exec_default(char** tokens, int ntokens);
+
+/** COPIED FUNCTIONS **/
+
+
+char *NombreUsuario(uid_t uid) {
+    struct passwd *p;
+    if ((p = getpwuid(uid)) == NULL)
+        return (" ??????");
+    return p->pw_name;
+}
+
+uid_t UidUsuario(char *nombre) {
+    struct passwd *p;
+    if ((p = getpwnam(nombre)) == NULL)
+        return (uid_t) -1;
+    return p->pw_uid;
+}
+
+void Cmd_getuid(char *tr[]) {
+    uid_t real = getuid(), efec = geteuid();
+    printf("Credencial real: %d, (%s)\n", real, NombreUsuario(real));
+    printf("Credencial efectiva: %d, (%s)\n", efec, NombreUsuario(efec));
+}
+
+void Cmd_setuid(char *tr[]) {
+    uid_t uid;
+    int u;
+    if (tr[0] == NULL || (!strcmp(tr[0], "-l") && tr[1] == NULL)) {
+        Cmd_getuid(tr);
+        return;
+    }
+    if (!strcmp(tr[0], "-l")) {
+        if ((uid = UidUsuario(tr[1])) == (uid_t) -1) {
+            printf("Usuario no existente %s\n", tr[1]);
+            return;
+        }
+    } else if ((uid = (uid_t) ((u = atoi(tr[0])) < 0) ? -1 : u) == (uid_t) -1) {
+        printf("Valor no valido de la credencial %s\n", tr[0]);
+        return;
+    }
+    if (setuid(uid) == -1)
+        printf("Imposible cambiar credencial: %s\n", strerror(errno));
+}
 
 int proccess_router(char **tokens, int ntokens, int cmd_index, pnode plist) {
     switch (cmd_index) {
@@ -71,7 +123,7 @@ int proccess_router(char **tokens, int ntokens, int cmd_index, pnode plist) {
             if (ntokens == 0 || ntokens > 2)
                 printf("Error, check the arguments.");
             else
-                setuid_cmd(tokens, ntokens);
+                setuid_cmd(tokens);
             break;
         case FORK:
             if (ntokens)
@@ -98,13 +150,13 @@ int proccess_router(char **tokens, int ntokens, int cmd_index, pnode plist) {
                 background_cmd(tokens, ntokens);
             break;
         case RUNAS:
-            if (ntokens < 3)
+            if (ntokens < 2)
                 printf("Error, check the arguments.");
             else
                 runas_cmd(tokens, ntokens);
             break;
         case EXECUTEAS:
-            if (ntokens < 3)
+            if (ntokens < 2)
                 printf("Error, check the arguments.");
             else
                 executeas_cmd(tokens, ntokens);
@@ -131,6 +183,28 @@ int proccess_router(char **tokens, int ntokens, int cmd_index, pnode plist) {
     return 0;
 }
 
+void exec_default(char** tokens, int ntokens) {
+    int back_flag = 0;
+    if (tokens[ntokens - 1][0] == '&') {
+        back_flag = 1;
+        tokens[ntokens - 1] = NULL;
+        ntokens--;
+    }
+    pid_t pid = fork();
+    if (pid < 0) {
+        printf("something went wrong :(\n");
+        return;
+    }
+    if (pid > 0) {
+        if (back_flag)
+            // TODO add to list
+            sleep(1);
+        else
+            waitpid(pid, NULL, 0);
+    } else
+        execute_cmd(tokens, ntokens);
+}
+
 void deleteprocs_cmd(char *token) {
     printf("deleteprocs");
 }
@@ -144,41 +218,136 @@ void listprocs_cmd() {
 }
 
 void executeas_cmd(char **tokens, int ntokens) {
-    printf("execute-as");
+    uid_t uid;
+    if ((uid = UidUsuario(tokens[0])) == (uid_t) -1) {
+        printf("Usuario no existente %s\n", tokens[0]);
+        return;
+    }
+    if (setuid(uid) == -1) {
+        printf("Imposible cambiar credencial: %s\n", strerror(errno));
+        return;
+    }
+    execute_cmd(tokens + 1, ntokens - 1);
 }
 
 void runas_cmd(char **tokens, int ntokens) {
-    printf("run-as");
+    int back_flag = 0;
+    if (tokens[ntokens - 1][0] == '&') {
+        back_flag = 1;
+        tokens[ntokens - 1] = NULL;
+        ntokens--;
+    }
+    pid_t pid = fork();
+    if (pid < 0) {
+        printf("something went wrong :(\n");
+        return;
+    }
+    if (pid > 0) {
+        if (back_flag)
+            // TODO add to list
+            sleep(1);
+        else
+            waitpid(pid, NULL, 0);
+    } else {
+        uid_t uid;
+        if ((uid = UidUsuario(tokens[0])) == (uid_t) -1) {
+            printf("Usuario no existente %s\n", tokens[0]);
+            exit(-1);
+        }
+        if (setuid(uid) == -1) {
+            printf("Imposible cambiar credencial: %s\n", strerror(errno));
+            exit(-1);
+        }
+        execute_cmd(tokens + 1, ntokens - 1);
+    }
 }
 
 void background_cmd(char **tokens, int ntokens) {
-    printf("background");
+    pid_t pid = fork();
+    if (pid < 0) {
+        printf("something went wrong :(\n");
+        return;
+    }
+    if (pid == 0)
+        execute_cmd(tokens, ntokens);
+    // TODO add to list
+    sleep(1);
 }
 
 void foreground_cmd(char **tokens, int ntokens) {
-    printf("foreground");
+    pid_t pid = fork();
+    if (pid < 0) {
+        printf("something went wrong :(\n");
+        return;
+    }
+    if (pid > 0)
+        waitpid(pid, NULL, 0);
+    else
+        execute_cmd(tokens, ntokens);
 }
 
 void execute_cmd(char **tokens, int ntokens) {
-    printf("execute");
+    if (tokens[ntokens - 1][0] == '@') {
+        setpriority_cmd(tokens + ntokens - 1, 1);
+        tokens[ntokens - 1] = NULL;
+    }
+    execvp(tokens[0], tokens);
+    printf("I'm not a magician, try a command that exists.\n");
 }
 
 void fork_cmd() {
-    printf("fork");
+    pid_t pid = fork();
+    if (pid < 0) {
+        printf("something went wrong :(\n");
+        return;
+    }
+    if (pid > 0)
+        waitpid(pid, NULL, 0);
 }
 
-void setuid_cmd(char **tokens, int ntokens) {
-    printf("setuid");
+void setuid_cmd(char **tokens) {
+    Cmd_setuid(tokens);
 }
 
 void getuid_cmd() {
-    printf("getuid");
+    uid_t real = getuid();
+    uid_t eff = geteuid();
+    printf("real uid: %d (%s)\n", real, NombreUsuario(real));
+    printf("eff. uid: %d (%s)\n", eff, NombreUsuario(eff));
 }
 
 void setpriority_cmd(char **tokens, int ntokens) {
-    printf("set priority");
+    int i_pid, prio, which = PRIO_PROCESS;
+    if (ntokens == 0) {
+        getpriority_cmd(NULL, 0);
+        return;
+    } else if (ntokens == 1) {
+        i_pid = getpid();
+        if (tokens[0][0] == '@')
+            prio = atoi(tokens[0] + 1);
+        else
+            prio = atoi(tokens[0]);
+    } else {
+        i_pid = atoi(tokens[0]);
+        prio = atoi(tokens[1]);
+    }
+    int err = setpriority(which, i_pid, prio);
+    if (errno == 0 && err == 0)
+        printf("priority changed pid=%d to prio=%d\n", i_pid, prio);
+    else
+        printf("priority not changed: %s\n", strerror(errno));
 }
 
 void getpriority_cmd(char *pid, int flag_pid) {
-    printf("get priority");
+    int i_pid, which = PRIO_PROCESS;
+    if (flag_pid)
+        i_pid = atoi(pid);
+    else
+        i_pid = getpid();
+    int prio = getpriority(which, i_pid);
+    if (prio == -1 && errno != 0) {
+        printf("something went wrong\n");
+        return;
+    }
+    printf("priority of pid=%d is=%d\n", i_pid, prio);
 }

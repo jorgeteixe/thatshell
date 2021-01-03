@@ -7,3 +7,4 @@
 #include "plistimpl.h"
 
 int proccess_router(char** tokens, int ntokens, int cmd_index, pnode plist);
+void exec_default(char** tokens, int ntokens);

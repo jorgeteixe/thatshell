@@ -455,7 +455,7 @@ int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens, histor
             proccess_router(tokens + 1, ntokens - 1, cmdCounter, pl);
             break;
         default:
-            printf("Unrecognised command... Try again.\n");
+            exec_default(tokens, ntokens);
     }
     printf("\n");
     return 1;
