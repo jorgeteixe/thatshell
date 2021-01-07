@@ -27,6 +27,9 @@
 #define LISTPROCS 30
 #define PROC 31
 #define DELETEPROCS 32
+#define EXITED_NORMALY 1111
+#define EXITED_SIGNAL 1000
+
 
 void getpriority_cmd(char *pid, int flag_pid);
 
@@ -42,19 +45,18 @@ void execute_cmd(char **tokens, int ntokens);
 
 void foreground_cmd(char **tokens, int ntokens);
 
-void background_cmd(char **tokens, int ntokens);
+void background_cmd(char **tokens, int ntokens, plist pl);
 
-void runas_cmd(char **tokens, int ntokens);
+void runas_cmd(char **tokens, int ntokens, plist pl);
 
 void executeas_cmd(char **tokens, int ntokens);
 
-void listprocs_cmd();
+void listprocs_cmd(plist pl);
 
-void proc_cmd(char **tokens, int ntokens);
+void proc_cmd(char **tokens, int ntokens, plist pl);
 
-void deleteprocs_cmd(char *token);
+void deleteprocs_cmd(char *token, plist pl);
 
-void exec_default(char** tokens, int ntokens);
 
 /** COPIED FUNCTIONS **/
 
@@ -99,7 +101,7 @@ void Cmd_setuid(char *tr[]) {
         printf("Imposible cambiar credencial: %s\n", strerror(errno));
 }
 
-int proccess_router(char **tokens, int ntokens, int cmd_index, posPL plist) {
+int proccess_router(char **tokens, int ntokens, int cmd_index, plist pl) {
     switch (cmd_index) {
         case GETPRIORITY:
             if (ntokens > 1)
@@ -147,13 +149,13 @@ int proccess_router(char **tokens, int ntokens, int cmd_index, posPL plist) {
             if (ntokens == 0)
                 printf("Error, check the arguments.");
             else
-                background_cmd(tokens, ntokens);
+                background_cmd(tokens, ntokens, pl);
             break;
         case RUNAS:
             if (ntokens < 2)
                 printf("Error, check the arguments.");
             else
-                runas_cmd(tokens, ntokens);
+                runas_cmd(tokens, ntokens, pl);
             break;
         case EXECUTEAS:
             if (ntokens < 2)
@@ -165,25 +167,25 @@ int proccess_router(char **tokens, int ntokens, int cmd_index, posPL plist) {
             if (ntokens)
                 printf("Error, check the arguments.");
             else
-                listprocs_cmd();
+                listprocs_cmd(pl);
             break;
         case PROC:
             if (ntokens == 0 || ntokens > 2)
                 printf("Error, check the arguments.");
             else
-                proc_cmd(tokens, ntokens);
+                proc_cmd(tokens, ntokens, pl);
             break;
         case DELETEPROCS:
             if (ntokens != 1)
                 printf("Error, check the arguments.");
             else
-                deleteprocs_cmd(tokens[0]);
+                deleteprocs_cmd(tokens[0],pl);
             break;
     }
     return 0;
 }
 
-void exec_default(char** tokens, int ntokens) {
+void exec_default(char** tokens, int ntokens, plist pl) {
     int back_flag = 0;
     if (tokens[ntokens - 1][0] == '&') {
         back_flag = 1;
@@ -196,25 +198,71 @@ void exec_default(char** tokens, int ntokens) {
         return;
     }
     if (pid > 0) {
-        if (back_flag)
-            // TODO add to list
+        if (back_flag) { //add to list
+            char* caller= (char*) malloc(sizeof(char)*90);
+            strcpy(caller,tokens[0]);
+            for(int i =1 ; i<ntokens ; i++){
+
+                if(strstr(tokens[i],"@")==NULL) {
+                    strcat(caller, tokens[i]);
+                    strcat(caller, " ");
+                }
+            }
+            insertItem(createInfo(pid,caller),&pl);
             sleep(1);
-        else
+        }else
             waitpid(pid, NULL, 0);
-    } else
+    }else
         execute_cmd(tokens, ntokens);
 }
 
-void deleteprocs_cmd(char *token) {
-    printf("deleteprocs");
+void deleteprocs_cmd(char *token, plist pl){
+    posPL pos;
+    pos= pl;
+    if(isEmptyList(pl)) {
+        printf("empty list, nothing to remove");
+        return;
+    }else {
+        if (0 == strcmp(token, "-term")) {
+            while(pos!=NULL){
+                if(pos->info.end_status==EXITED_NORMALY){
+                    deleteAtPosition(pos,&pl);
+                }
+                pos=pos->next;
+            }
+        }
+        if (0 == strcmp(token, "-sig")) {
+            while(pos!=NULL){
+                if(pos->info.end_status==EXITED_SIGNAL){
+                    deleteAtPosition(pos,&pl);
+                }
+                pos=pos->next;
+            }
+        }
+    }
 }
 
-void proc_cmd(char **tokens, int ntokens) {
-    printf("proc");
+void proc_cmd(char **tokens, int ntokens, plist pl){
+    posPL pos;
+    if(ntokens==1){
+        pos=findItemByPID(pl,atoi(tokens[0]));
+        if (pos==NULL){
+            printf("this PID doesnt exit :(\n");
+            showList(pl);
+            return;
+        }
+        printInfo(pos->info);
+    }else{
+        if(strcmp(tokens[0],"-fg")==0){
+            //TODO
+        }else{
+            printf("check the params!");
+        }
+    }
 }
 
-void listprocs_cmd() {
-    printf("listprocs");
+void listprocs_cmd(plist pl) {
+    showList(pl);
 }
 
 void executeas_cmd(char **tokens, int ntokens) {
@@ -230,7 +278,7 @@ void executeas_cmd(char **tokens, int ntokens) {
     execute_cmd(tokens + 1, ntokens - 1);
 }
 
-void runas_cmd(char **tokens, int ntokens) {
+void runas_cmd(char **tokens, int ntokens, plist pl) {
     int back_flag = 0;
     if (tokens[ntokens - 1][0] == '&') {
         back_flag = 1;
@@ -243,10 +291,19 @@ void runas_cmd(char **tokens, int ntokens) {
         return;
     }
     if (pid > 0) {
-        if (back_flag)
-            // TODO add to list
+        if (back_flag) {//add to list
+            char* caller= (char*) malloc(sizeof(char)*90);
+            strcpy(caller,tokens[0]);
+            for(int i =1 ; i<ntokens ; i++){
+
+                if(strstr(tokens[i],"@")==NULL) {
+                    strcat(caller, tokens[i]);
+                    strcat(caller, " ");
+                }
+            }
+            insertItem(createInfo(pid,caller),&pl);
             sleep(1);
-        else
+        }else
             waitpid(pid, NULL, 0);
     } else {
         uid_t uid;
@@ -262,7 +319,7 @@ void runas_cmd(char **tokens, int ntokens) {
     }
 }
 
-void background_cmd(char **tokens, int ntokens) {
+void background_cmd(char **tokens, int ntokens, plist pl) {
     pid_t pid = fork();
     if (pid < 0) {
         printf("something went wrong :(\n");
@@ -271,6 +328,16 @@ void background_cmd(char **tokens, int ntokens) {
     if (pid == 0)
         execute_cmd(tokens, ntokens);
     // TODO add to list
+    char* caller= (char*) malloc(sizeof(char)*90);
+    strcpy(caller,tokens[0]);
+    for(int i =1 ; i<ntokens ; i++){
+
+        if(strstr(tokens[i],"@")==NULL) {
+            strcat(caller, tokens[i]);
+            strcat(caller, " ");
+        }
+    }
+    insertItem(createInfo(pid,caller),&pl);
     sleep(1);
 }
 

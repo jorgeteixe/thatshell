@@ -16,7 +16,6 @@
 #include "deleteimpl.h"
 #include "listimpl.h"
 #include "memory.h"
-#include "listmem.h"
 #include "proccess.h"
 
 
@@ -454,7 +453,7 @@ int router(char **myCommands, int N_COMMANDS, char **tokens, int ntokens, histor
             proccess_router(tokens + 1, ntokens - 1, cmdCounter, pl);
             break;
         default:
-            exec_default(tokens, ntokens);
+            exec_default(tokens, ntokens, pl);
     }
     printf("\n");
     return 1;
@@ -539,7 +538,6 @@ int main() {
     historic h = create_historic();
     mem_list ml = create_memlist();
     plist pl = create_plist();
-
     while (status) {
         /** Prints shell prompt */
         prompt();
@@ -568,6 +566,8 @@ int main() {
     /** Final operations */
     remove_historic(h);
     remove_memlist(ml);
+    deleteList(&pl);
+    free(pl);
     free(cms);
     free(inStr);
     return 1;

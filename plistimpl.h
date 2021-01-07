@@ -29,9 +29,13 @@ typedef struct proccess_node {
 typedef posPL plist;
 
 plist create_plist();
-bool insertItem(struct pinfo info, plist* pl);
+pinfo createInfo(int pid, char* caller);
+bool insertItem(struct pinfo info, plist *pl);
 void deleteAtPosition(posPL pos, plist *pl);
 void deleteList(plist *pl);
 bool isEmptyList(plist pl);
 posPL last(plist pl);
 void showList(plist pl);
+void printInfo(struct pinfo info);
+void removeByStatus(plist* pl, int signal);
+posPL findItemByPID(plist pl, int pid);
