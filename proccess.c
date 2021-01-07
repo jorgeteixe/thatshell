@@ -198,7 +198,7 @@ void exec_default(char** tokens, int ntokens, plist pl) {
         return;
     }
     if (pid > 0) {
-        if (back_flag) { //add to list
+        if (back_flag) {
             char* caller= (char*) malloc(sizeof(char)*90);
             strcpy(caller,tokens[0]);
             for(int i =1 ; i<ntokens ; i++){
@@ -218,14 +218,17 @@ void exec_default(char** tokens, int ntokens, plist pl) {
 
 void deleteprocs_cmd(char *token, plist pl){
     posPL pos;
-    pos= pl;
+    pos = pl;
     if(isEmptyList(pl)) {
         printf("empty list, nothing to remove");
         return;
-    }else {
+    } else {
         if (0 == strcmp(token, "-term")) {
             while(pos!=NULL){
-                if(pos->info.end_status==EXITED_NORMALY){
+                int newstatus = check_status(pos->info.pid);
+                if (newstatus != -1)
+                    pos->info.end_status = newstatus;
+                if(pos->info.end_status == 2){
                     deleteAtPosition(pos,&pl);
                 }
                 pos=pos->next;
@@ -233,7 +236,10 @@ void deleteprocs_cmd(char *token, plist pl){
         }
         if (0 == strcmp(token, "-sig")) {
             while(pos!=NULL){
-                if(pos->info.end_status==EXITED_SIGNAL){
+                int newstatus = check_status(pos->info.pid);
+                if (newstatus != -1)
+                    pos->info.end_status = newstatus;
+                if(pos->info.end_status==1){
                     deleteAtPosition(pos,&pl);
                 }
                 pos=pos->next;
@@ -327,11 +333,9 @@ void background_cmd(char **tokens, int ntokens, plist pl) {
     }
     if (pid == 0)
         execute_cmd(tokens, ntokens);
-    // TODO add to list
     char* caller= (char*) malloc(sizeof(char)*90);
     strcpy(caller,tokens[0]);
     for(int i =1 ; i<ntokens ; i++){
-
         if(strstr(tokens[i],"@")==NULL) {
             strcat(caller, tokens[i]);
             strcat(caller, " ");
@@ -360,6 +364,7 @@ void execute_cmd(char **tokens, int ntokens) {
     }
     execvp(tokens[0], tokens);
     printf("I'm not a magician, try a command that exists.\n");
+    exit(1);
 }
 
 void fork_cmd() {

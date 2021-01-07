@@ -14,8 +14,8 @@ typedef struct proccess_node * posPL;
 
 typedef struct pinfo{
     int pid;
-    int priority;
     char* caller;
+    int priority;
     time_t started_time;
     int end_status;
 }pinfo;
@@ -39,3 +39,4 @@ void showList(plist pl);
 void printInfo(struct pinfo info);
 void removeByStatus(plist* pl, int signal);
 posPL findItemByPID(plist pl, int pid);
+int check_status(int);
